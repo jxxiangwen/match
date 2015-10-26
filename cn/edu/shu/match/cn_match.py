@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename=('log/main_%s.log' % strftime('%Y-%m-%d', localtime())),
                     filemode='w')
-# 全局变量，存储需求和技术编号顺序
+# 全局变量，存储需求和服务编号顺序
 require_id = []
 provide_id = []
 
@@ -28,15 +28,20 @@ def invoke_algorithm(individuation=False):
             algorithm_type = json_data['algorithm']
             if "plsa" == algorithm_type:
                 save_to_database(
-                    *get_result_from_plsa(require_id, provide_id, './config/algorithm.json', 'text', src='provide',dest='require'))
+                    *get_result_from_plsa(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
+                                          dest='require'))
+                print(get_result_from_plsa(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
+                                           dest='require'))
             elif "lda" == algorithm_type:
                 logging.debug("test")
-                save_to_database(*get_result_from_lda(require_id, provide_id, './config/algorithm.json', 'text', src='provide',dest='require'))
+                save_to_database(
+                    *get_result_from_lda(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
+                                         dest='require'))
                 logging.debug("test")
             elif "cos" == algorithm_type:
-                save_to_database(*get_result_from_plsa(require_id, provide_id, 'text', src='provide',dest='require'))
+                save_to_database(*get_result_from_plsa(require_id, provide_id, 'text', src='provide', dest='require'))
             elif "all" == algorithm_type:
-                save_to_database(*get_result_from_plsa(require_id, provide_id, 'text', src='provide',dest='require'))
+                save_to_database(*get_result_from_plsa(require_id, provide_id, 'text', src='provide', dest='require'))
             else:
                 raise ValueError
 
@@ -49,6 +54,7 @@ if __name__ == '__main__':
     while True:
         start = time.clock()
         invoke_algorithm()
+        print('\a')
         end = time.clock()
         print("程序运行了: %f 秒" % (end - start))
         if end - start < 60:

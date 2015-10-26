@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename=('cn_matchPlsi_%s.log' % strftime('%Y-%m-%d', localtime())),
                     filemode='w')
-# 全局变量，存储需求和技术编号顺序
+# 全局变量，存储需求和服务编号顺序
 require_id = []
 provide_id = []
 degree = {97: 60, 98: 65, 99: 70, 100: 75}

@@ -42,11 +42,11 @@ def train_by_lda(lib_texts, topic_num=9):
     # index 是 gensim.similarities.docsim.MatrixSimilarity 实例
     index = similarities.MatrixSimilarity(lda[corpus])
     #  logging.info("index: %s" % index)
-    return (index, dictionary, lda)
+    return tuple((index, dictionary, lda))
 
 
 def get_result_from_lda(require_id, provide_id, algorithm_config, doc_type='text', src='require', dest='provide',
-                        topic_num=9):
+                        read_file=True, match_need={}, topic_num=9):
     """
 
     :param require_id:全局需求id
@@ -55,6 +55,8 @@ def get_result_from_lda(require_id, provide_id, algorithm_config, doc_type='text
     :param doc_type:获取文本方式，text读取完整文本，keys直接去除文本tfidf
     :param src:匹配源文档类型
     :param dest:匹配目标文档类型
+    :param read_file:通过文件读取匹配所需还是通过match_need读取True为通过文件读取
+    :param match_need：匹配所需信息
     :param topic_num:主题数目
     :return:元组，由结果和匹配源文档类型组成
     """
@@ -76,11 +78,11 @@ def get_result_from_lda(require_id, provide_id, algorithm_config, doc_type='text
     #         sort_sims = sorted(enumerate(sims), key=lambda item: -item[1])
     #         result.append(sort_sims)
     #         logging.warning("第%s篇%s文档匹配结果：%s" % (doc_id, dest, sort_sims))
-    #     return (require_id, provide_id,result, src)
+    #     return tuple(require_id, provide_id,result, src)
     if 'text' == doc_type:
-        text = get_datas_from_text(require_id, provide_id, algorithm_config, dest, "lda")
+        text = get_datas_from_text(require_id, provide_id, algorithm_config, dest, "lda",read_file=read_file, match_need=match_need)
         sort_sims = []
-        for doc_id, data in enumerate(get_one_from_text(require_id, provide_id, algorithm_config, src, "lda")):
+        for doc_id, data in enumerate(get_one_from_text(require_id, provide_id, algorithm_config, src, "lda",read_file=read_file, match_need=match_need)):
             (index, dictionary, lda) = train_by_lda(text, topic_num)
             # 词袋处理
             ml_bow = dictionary.doc2bow(data)
@@ -91,7 +93,7 @@ def get_result_from_lda(require_id, provide_id, algorithm_config, doc_type='text
             # 排序，为输出方便
             sort_sims = sorted(enumerate(sims), key=lambda item: -item[1])
             result.append(sort_sims)
-            logging.debug("第%s篇%s文档匹配结果：%s" % (doc_id, dest, sort_sims))
-        return (require_id, provide_id,result, src)
+            # logging.warning("第%s篇%s文档匹配结果：%s" % (doc_id, dest, sort_sims))
+        return tuple((require_id, provide_id, result, src))
     else:
         raise ValueError
