@@ -235,5 +235,5 @@ if __name__ == '__main__':
     ga = GeneticAlgorithm()
     # print(ga.cost([2,4,8,11,18],[5,5,5,5,5],[2,4,8,9,12,16,17,18,20,25],[5,5,5,5,5,5,5,5,5,5]))
     ga.genetic_optimize()
-    # ga.show_data(1)
+    # ga.show_data(4)
     # ga.show_data(3)

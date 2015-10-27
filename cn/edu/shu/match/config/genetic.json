@@ -3,7 +3,7 @@
     "min_comment": "权重的最小值",
     "max": "10",
     "max_comment": "权重的最大值",
-    "pop_size": "2",
+    "pop_size": "4",
     "pop_size_comment": "种群大小",
     "step": "1",
     "step_comment": "调整的步幅大小",
