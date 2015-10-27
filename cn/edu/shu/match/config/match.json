@@ -1,0 +1,16 @@
+{
+  "require_id": "1,2,3,4,5",
+  "require_id_comment": "需求id",
+  "provide_id": "1,2,3,4,5",
+  "provide_id_comment": "服务id",
+  "match_degree_1": "1,0,0,0,0",
+  "match_degree_1_comment": "匹配度",
+  "match_degree_2": "0,1,0,0,0",
+  "match_degree_2_comment": "匹配度",
+  "match_degree_3": "0,0,1,0,0,",
+  "match_degree_3_comment": "匹配度",
+  "match_degree_4": "0,0,0,1,0",
+  "match_degree_4_comment": "匹配度",
+  "match_degree_5": "0,0,0,0,1",
+  "match_degree_5_comment": "匹配度"
+}

@@ -1,0 +1,16 @@
+{
+    "min": "0",
+    "min_comment": "权重的最小值",
+    "max": "10",
+    "max_comment": "权重的最大值",
+    "pop_size": "4",
+    "pop_size_comment": "种群大小",
+    "step": "1",
+    "step_comment": "调整的步幅大小",
+    "mutate_prob": "0.3",
+    "mutate_prob_comment": "种群的新成员是由变异而非交叉的来的概率",
+    "elite": "0.5",
+    "elite_comment": "种群中被认为是优解且被允许传入下一代的部分",
+    "max_iter": "50",
+    "max_iter_comment": "需迭代多少代"
+}

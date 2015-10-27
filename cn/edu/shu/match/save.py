@@ -65,7 +65,15 @@ def save_to_database(require_id, provide_id, result, src):
                                         "select * from %s where %s = %d and %s = %d" % (
                                         table_json['match'], table_json['match_require_id'],
                                         require_id[doc_id], table_json['match_provide_id'], provide_id[index])):
-                            # logging.debug("INSERT INTO DocMatchInfor ([DocMatchInfor_ReqID], [DocMatchInfor_ProID], [DocMatchInfor_Degree], [DocMatchInfor_Status], [DocMatchInfor_CreateDate], [DocMatchInfor_ReqRead], [DocMatchInfor_ProRead]) VALUES ('%s', '%s', '%s', '0', '%s', '0', '0')" %(require_id[doc_id], provide_id[index], degree[round(cosine * 100)], strftime('%Y-%m-%d %H:%M:%S', localtime())))
+                            print("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) VALUES ('%s', '%s', '%s', '0', '%s', '0', '0')" % (
+                                    table_json['match'], table_json['match_require_id'],
+                                    table_json['match_provide_id'],
+                                    table_json['match_degree'],
+                                    table_json['match_status'], table_json['match_create_time'],
+                                    table_json['match_req_read'],
+                                    table_json['match_pro_read'],
+                                    require_id[doc_id], provide_id[index], degree_transform(int(cosine * 100)),
+                                    strftime('%Y-%m-%d %H:%M:%S', localtime())))
                             sql.exec_non_search(
                                 "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) VALUES ('%s', '%s', '%s', '0', '%s', '0', '0')" % (
                                     table_json['match'], table_json['match_require_id'],
@@ -74,7 +82,7 @@ def save_to_database(require_id, provide_id, result, src):
                                     table_json['match_status'], table_json['match_create_time'],
                                     table_json['match_req_read'],
                                     table_json['match_pro_read'],
-                                    require_id[doc_id], provide_id[index], degree_transform(round(cosine * 100)),
+                                    require_id[doc_id], provide_id[index], degree_transform(int(cosine * 100)),
                                     strftime('%Y-%m-%d %H:%M:%S', localtime())))
         elif 'provide' == src:
             for index, data in enumerate(result):
@@ -117,7 +125,7 @@ def save_to_database(require_id, provide_id, result, src):
                                     table_json['match_status'], table_json['match_create_time'],
                                     table_json['match_req_read'],
                                     table_json['match_pro_read'],
-                                    require_id[index], provide_id[doc_id], degree_transform(round(cosine * 100)),
+                                    require_id[index], provide_id[doc_id], degree_transform(int(cosine * 100)),
                                     strftime('%Y-%m-%d %H:%M:%S', localtime())))
         else:
             raise ValueError
