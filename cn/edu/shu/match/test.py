@@ -20,3 +20,6 @@ with open('./config/genetic.json', encoding='utf-8') as genetic_file:
     genetic_json = json.load(genetic_file)
     with open('./config/algorithm.json', encoding='utf-8') as algorithm_file:
         min = int(['min'])
+with open('./config/algorithm.json', encoding='utf-8') as f:
+    json_data = json.load(f)
+    print(type(json_data['user_id']))
