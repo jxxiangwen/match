@@ -26,21 +26,19 @@ def invoke_algorithm(individuation=False):
         with open('./config/algorithm.json', encoding='utf-8') as f:
             json_data = json.load(f)
             algorithm_type = json_data['algorithm']
-            if "plsa" == algorithm_type:
+            if json_data['plsa']:
                 save_to_database(
                     *get_result_from_plsa(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
                                           dest='require'))
                 print(get_result_from_plsa(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
                                            dest='require'))
-            elif "lda" == algorithm_type:
+            elif json_data['lda']:
                 logging.debug("test")
                 save_to_database(
                     *get_result_from_lda(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
                                          dest='require'))
                 logging.debug("test")
-            elif "cos" == algorithm_type:
-                save_to_database(*get_result_from_plsa(require_id, provide_id, 'text', src='provide', dest='require'))
-            elif "all" == algorithm_type:
+            elif json_data['cos']:
                 save_to_database(*get_result_from_plsa(require_id, provide_id, 'text', src='provide', dest='require'))
             else:
                 raise ValueError
