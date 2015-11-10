@@ -230,7 +230,6 @@ class GeneticAlgorithm:
             pl.plot(generations, degrees)  # use pylab to plot x and y
             pl.show()  # show the plot on the screen
 
-
 if __name__ == '__main__':
     ga = GeneticAlgorithm()
     # print(ga.cost([2,4,8,11,18],[5,5,5,5,5],[2,4,8,9,12,16,17,18,20,25],[5,5,5,5,5,5,5,5,5,5]))
