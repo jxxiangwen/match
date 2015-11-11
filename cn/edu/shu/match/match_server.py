@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-"""
-   匹配算法
-"""
 from build_sql import MsSql
 # 为了能看到过程日志
 import logging, json
 from time import strftime, localtime
+
+__author__ = 'jxxia'
+"""
+   匹配算法
+"""
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',

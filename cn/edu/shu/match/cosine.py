@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'jxxia'
-
 import logging
 from time import strftime, localtime
+
+__author__ = 'jxxia'
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',

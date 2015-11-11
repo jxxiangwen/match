@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'jxxia'
-
 import json
 import logging
 from time import strftime, localtime
+
+__author__ = 'jxxia'
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
@@ -35,10 +35,10 @@ class BuildJson:
         read_algorithm = open('./config/algorithm.json', encoding='utf-8', mode='r')
         json_data = json.load(read_algorithm)  # 加载Json文件
         write_algorithm = open('./config/algorithm.json', encoding='utf-8', mode='w')
-        json_data[algorithm_type+'_require_conclude'] = require_conclude
-        json_data[algorithm_type+'_require_weight'] = require_weight
-        json_data[algorithm_type+'_provide_conclude'] = provide_conclude
-        json_data[algorithm_type+'_provide_weight'] = provide_weight
+        json_data[algorithm_type + '_require_conclude'] = require_conclude
+        json_data[algorithm_type + '_require_weight'] = require_weight
+        json_data[algorithm_type + '_provide_conclude'] = provide_conclude
+        json_data[algorithm_type + '_provide_weight'] = provide_weight
         json.dump(json_data, write_algorithm, ensure_ascii=False, indent=4, sort_keys=True)
 
     def build_degree(self, path='./config/degree.json'):

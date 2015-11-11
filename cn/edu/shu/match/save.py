@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'jxxia'
-
 from build_sql import MsSql
 import json
 import logging
 from time import strftime, localtime
+
+__author__ = 'jxxia'
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
@@ -65,7 +65,8 @@ def save_to_database(require_id, provide_id, result, src):
                                         "select * from %s where %s = %d and %s = %d" % (
                                         table_json['match'], table_json['match_require_id'],
                                         require_id[doc_id], table_json['match_provide_id'], provide_id[index])):
-                            print("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) VALUES ('%s', '%s', '%s', '0', '%s', '0', '0')" % (
+                            print(
+                                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) VALUES ('%s', '%s', '%s', '0', '%s', '0', '0')" % (
                                     table_json['match'], table_json['match_require_id'],
                                     table_json['match_provide_id'],
                                     table_json['match_degree'],

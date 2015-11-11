@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'jxxia'
-
 import json, logging
 from time import strftime, localtime
+
+__author__ = 'jxxia'
 
 
 class Log_Config:
     def congif(self):
-        with open('algorithm.json',encoding='utf-8') as f:
+        with open('algorithm.json', encoding='utf-8') as f:
             json_data = json.load(f)
             algorithm_type = json_data['algorithm']
             if "plsa" == algorithm_type:

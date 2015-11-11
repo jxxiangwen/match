@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'jxxia'
-
 from get_data import get_datas_from_text, get_one_from_text
 import logging
 from time import strftime, localtime
+
+__author__ = 'jxxia'
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
@@ -75,11 +75,14 @@ def get_result_from_plsa(require_id, provide_id, algorithm_config, doc_type='tex
     #         logging.warning("第%s篇%s文档匹配结果：%s" % (doc_id, dest, sort_sims))
     #     return tuple(require_id, provide_id,result, src)
     if 'text' == doc_type:
-        text = get_datas_from_text(require_id, provide_id, algorithm_config, dest, "plsa",read_file=read_file, match_need=match_need)
+        text = get_datas_from_text(require_id, provide_id, algorithm_config, dest, "plsa", read_file=read_file,
+                                   match_need=match_need)
         # logging.warning("text : %s" % text)
         # print("text : ", text)
         sort_sims = []
-        for doc_id, data in enumerate(get_one_from_text(require_id, provide_id, algorithm_config, src, "plsa",read_file=read_file, match_need=match_need)):
+        for doc_id, data in enumerate(
+                get_one_from_text(require_id, provide_id, algorithm_config, src, "plsa", read_file=read_file,
+                                  match_need=match_need)):
             (index, dictionary, lsi) = train_by_plsa(text, topic_num)
             # 词袋处理
             ml_bow = dictionary.doc2bow(data)

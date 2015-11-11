@@ -15,4 +15,3 @@ def str_list_to_dict(str_list):
         temp_list = item.strip().split('-')
         return_dict[temp_list[0]] = temp_list[1]
     return return_dict
-

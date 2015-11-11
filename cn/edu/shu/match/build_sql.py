@@ -18,7 +18,6 @@ logging.basicConfig(level=logging.INFO,
 
 
 class MsSql:
-
     """
     对pymssql的简单封装
     pymssql库，该库到这里下载：http://www.lfd.uci.edu/~gohlke/pythonlibs/#pymssql
@@ -39,6 +38,7 @@ class MsSql:
         """
         得到连接信息
         返回: conn.cursor()
+        :return:
         """
         if not self.database:
             raise (NameError, "没有设置数据库信息")
@@ -60,6 +60,8 @@ class MsSql:
                 resList = ms.exec_search("SELECT id,NickName FROM WeiBoUser")
                 for (id,NickName) in resList:
                     print str(id),NickName
+        :param sql: 查询语句sql代码
+        :return:
         """
         cursor = self.__get_connect()
         cursor.execute(sql)
@@ -78,6 +80,8 @@ class MsSql:
             cur.execute(sql)
             self.conn.commit()
             self.conn.close()
+        :param sql: 非查询语句sql代码
+        :return:
         """
         cursor = self.__get_connect()
         cursor.execute(sql)
@@ -88,10 +92,10 @@ class MsSql:
 if __name__ == '__main__':
     # 创建一个数据库对象
     sql = MsSql()
-    user_key_result = sql.exec_search("select * from UserKeyWdsInfor")
+    user_key_result = sql.exec_search("select * from UserInfor")
+    print("user_key_result", user_key_result)
     if not user_key_result:
         print("user_key_result", user_key_result)
     # 取出所有记录，返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
-    for (UserInfor_ID, UserInfor_Birth) in user_key_result:
-        print("UserInfor_ID:" + str(UserInfor_ID) + ",UserInfor_Birth:" + UserInfor_Birth + "")
-        # sql.exec_non_search("update UserInfor set UserInfor_Birth='1991-07-25' where UserInfor_ID=1")
+    for user_infor in user_key_result:
+        print("UserInfor_ID:{0},UserInfor_Name:{1}".format(str(user_infor[0]),user_infor[2]))

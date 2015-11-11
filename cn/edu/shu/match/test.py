@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'jxxia'
-
 import json
+
+__author__ = 'jxxia'
 
 # read_algorithm = open('./config/table.json', encoding='utf-8', mode='r')
 # json_data = json.load(read_algorithm)  # 加载Json文件

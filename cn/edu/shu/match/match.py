@@ -1,8 +1,6 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-   匹配算法
-"""
 from save import save_to_database
 from plsa import get_result_from_plsa
 from lda import get_result_from_lda
@@ -10,6 +8,11 @@ from cosine import *
 import json
 import logging
 from time import strftime, localtime
+
+__author__ = 'jxxia'
+"""
+   匹配算法
+"""
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',

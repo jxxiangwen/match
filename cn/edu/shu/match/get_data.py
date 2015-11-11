@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'jxxia'
-
 from build_sql import MsSql
 from preprocess import pre_process_cn
 from tool import str_list_to_dict
 import json
 import logging
 from time import strftime, localtime
+
+__author__ = 'jxxia'
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
