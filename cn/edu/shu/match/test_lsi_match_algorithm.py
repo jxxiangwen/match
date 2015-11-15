@@ -6,7 +6,7 @@ from unittest import TestCase
 __author__ = 'jxxia'
 
 
-class TestPlsaMatchAlgorithm(TestCase):
+class TestLsiMatchAlgorithm(TestCase):
     def test_get_result(self):
         self.fail()
 

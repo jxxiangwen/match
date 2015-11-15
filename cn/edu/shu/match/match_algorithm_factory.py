@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from plsa_algorithm import PlsaMatchAlgorithm
-from lda_algorithm import LdaMatchAlgorithm
-from cos_algorithm import CosMatchAlgorithm
+from cn.edu.shu.match.lsi_algorithm import LsiMatchAlgorithm
+from cn.edu.shu.match.lda_algorithm import LdaMatchAlgorithm
+from cn.edu.shu.match.cos_algorithm import CosMatchAlgorithm
 
 __author__ = 'jxxia'
 """
@@ -22,7 +22,7 @@ class MatchAlgorithmFactory(object):
         :return:
         """
         self.algorithm = dict()
-        self.algorithm_type = ['plsa', 'lda', 'cos']
+        self.algorithm_type = ['lsi', 'lda', 'cos']
 
     def create_match_algorithm(self, algorithm_name):
         """
@@ -30,7 +30,7 @@ class MatchAlgorithmFactory(object):
         :param algorithm_name: 需要创建的算法对象类型
         :return: 创建的算法对象，如果不存在则抛出TypeError异常
         """
-        self.algorithm['plsa'] = PlsaMatchAlgorithm()
+        self.algorithm['lsi'] = LsiMatchAlgorithm()
         self.algorithm['lda'] = LdaMatchAlgorithm()
         self.algorithm['cos'] = CosMatchAlgorithm()
         if algorithm_name in self.algorithm_type:

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from functools import reduce
-from cn.edu.shu.match.lsi import get_result_from_lsi
-from cn.edu.shu.match.lda import get_result_from_lda
-from cn.edu.shu.match.lsi_algorithm import LsiMatchAlgorithm
-from cn.edu.shu.match.lda_algorithm import LdaMatchAlgorithm
-from cn.edu.shu.match.cosine import *
-from cn.edu.shu.match.build_json import BuildJson
-from cn.edu.shu.match.tool import str_value_to_int_list
 import random, time
+from functools import reduce
+from plsa import get_result_from_plsa
+from lda import get_result_from_lda
+from cosine import *
+from build_json import BuildJson
 import json
 import logging
 from time import strftime, localtime
@@ -32,7 +29,7 @@ class GeneticAlgorithm:
     遗传算法
     """
 
-    def cost(self, require_conclude, require_weight, provide_conclude, provide_weight, algorithm_type='lsi'):
+    def cost(self, require_conclude, require_weight, provide_conclude, provide_weight, algorithm_type='plsa'):
         """
         遗传算法成本计算函数
         :param require_conclude:需求匹配所包含索引
@@ -42,43 +39,29 @@ class GeneticAlgorithm:
         :param algorithm_type:算法类型
         :return:所需成本
         """
-        match_file = dict()
+        match_file = {}
         match_file['require_conclude'] = require_conclude
         match_file['require_weight'] = list(map(lambda x: str(x), require_weight))
         match_file['provide_conclude'] = provide_conclude
         match_file['provide_weight'] = list(map(lambda x: str(x), provide_weight))
         print(match_file)
-        match_algorithm = None
-        if "lsi" == algorithm_type:
-            match_algorithm = LsiMatchAlgorithm()
-            # result = match_algorithm.get_result(re_train=True, num_topics=5)  # 重新训练
-            result = match_algorithm.get_result(False)  # 不重新训练
+        if "plsa" == algorithm_type:
+            result = get_result_from_plsa(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
+                                          dest='require', read_file=False, match_need=match_file)
         elif "lda" == algorithm_type:
-            match_algorithm = LdaMatchAlgorithm()
-            # result = match_algorithm.get_result(re_train=True, num_topics=5)  # 重新训练
-            result = match_algorithm.get_result(False)  # 不重新训练
+            result = get_result_from_lda(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
+                                         dest='require', read_file=False, match_need=match_file)
         elif "cos" == algorithm_type:
-            pass
+            result = get_result_from_plsa(require_id, provide_id, 'text', src='provide', dest='require',
+                                          read_file=False, match_need=match_file)
         elif "all" == algorithm_type:
-            pass
+            result = get_result_from_plsa(require_id, provide_id, 'text', src='provide', dest='require',
+                                          read_file=False, match_need=match_file)
         else:
             raise ValueError
-        # rusult 形式为len(require_id) * len(provide_id)的矩阵
-        result_require_id = match_algorithm.get_require_id()
-        result_provide_id = match_algorithm.get_provide_id()
-        with open('./config/match.json', encoding='utf-8') as match_file:
-            match_json = json.load(match_file)
-            result_real_require_id = match_json['require_id']  # 用来训练的需求id
-            result_real_provide_id = match_json['provide_id']  # 用来训练的服务id
-            # 转化为int型list
-            result_real_require_id == str_value_to_int_list(result_real_require_id)
-            result_real_provide_id == str_value_to_int_list(result_real_provide_id)
-            for train_require_id in result_real_require_id:
-                if result_require_id.count(train_require_id) == 0:
-                    raise IndexError("数据库中不存在id为{}的需求文档".format(train_require_id))
-            for train_provide_id in result_real_provide_id:
-                if result_provide_id.count(train_provide_id) == 0:
-                    raise IndexError("数据库中不存在id为{}的服务文档".format(train_provide_id))
+        # rusult 形式(require_id,provide_id,result,src)([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [[(0, 0.99987763), (4, 0.016127665), (3, 0.0084375618), (1, 0.0020131981), (2, 0.0)], [(1, 0.97787929), (0, 0.21180208), (3, 0.21044815), (4, 0.014341772), (2, 0.0)], [(2, 0.99399096), (4, 0.09167923), (3, 0.048688658), (0, 0.041444559), (1, 0.0032396186)], [(3, 0.94377685), (0, 0.25374854), (4, 0.23763916), (1, 0.1116139), (2, 0.0)], [(4, 0.99931318), (3, 0.092100404), (0, 0.025333783), (1, 0.021226577), (2, 0.0)]], 'provide')
+        result_require_id = result[0]
+        result_provide_id = result[1]
         match_degree = result[2]  # 存储匹配结果
         src = result[3]
         score = 0.0
@@ -97,7 +80,7 @@ class GeneticAlgorithm:
                 raise ValueError
         return score
 
-    def genetic_optimize(self, algorithm_type='lsi'):
+    def genetic_optimize(self, algorithm_type='plsa'):
         """
         遗传算法
         :param algorithm_type:算法类型
@@ -111,7 +94,7 @@ class GeneticAlgorithm:
             if random.random() < 0.5 and weight_vector[i] > min:
                 print("变异返回：%s" % (weight_vector[0:i] + [weight_vector[i] - step] + weight_vector[i + 1:]))
                 return weight_vector[0:i] + [weight_vector[i] - step] + weight_vector[i + 1:]
-            elif weight_vector[i] < max_value:
+            elif weight_vector[i] < max:
                 print("变异返回：%s" % (weight_vector[0:i] + [weight_vector[i] + step] + weight_vector[i + 1:]))
                 return weight_vector[0:i] + [weight_vector[i] + step] + weight_vector[i + 1:]
             else:
@@ -128,8 +111,8 @@ class GeneticAlgorithm:
         with open('./config/genetic.json', encoding='utf-8') as genetic_file:
             genetic_json = json.load(genetic_file)
             with open('./config/algorithm.json', encoding='utf-8') as algorithm_file:
-                min_value = int(genetic_json['min_value'])
-                max_value = int(genetic_json['max_value'])
+                min = int(genetic_json['min'])
+                max = int(genetic_json['max'])
                 pop_size = int(genetic_json['pop_size'])
                 step = int(genetic_json['step'])
                 mutate_prob = float(genetic_json['mutate_prob'])
@@ -145,13 +128,15 @@ class GeneticAlgorithm:
                 require_weight_pop = []
                 provide_weight_pop = []
                 for i in range(pop_size):
-                    require_weight = [random.randint(min_value, max_value) for i in range(len(require_conclude))]
+                    require_weight = [random.randint(min, max)
+                                      for i in range(len(require_conclude))]
                     require_weight_pop.append(require_weight)
-                    provide_weight = [random.randint(min_value, max_value) for i in range(len(provide_conclude))]
+                    provide_weight = [random.randint(min, max)
+                                      for i in range(len(provide_conclude))]
                     provide_weight_pop.append(provide_weight)
 
-                print("require_weight_pop :{}".format(require_weight_pop))
-                print("provide_weight_pop :{}".format(provide_weight_pop))
+                print("require_weight_pop :%s" % require_weight_pop)
+                print("provide_weight_pop :%s" % provide_weight_pop)
             # 每一代中有多少胜出者
             top_elite = int(elite * pop_size)
             with open('./result/score.txt', encoding='utf-8', mode='a+') as score_file:

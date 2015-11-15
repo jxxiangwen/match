@@ -1,0 +1,12 @@
+{
+  "weight": "match",
+  "weight_comment": "MongoDB中文档权重所在集合",
+  "genetic": "genetic",
+  "genetic_comment": "MongoDB中遗传算法配置所在集合",
+  "test": "test",
+  "test_comment": "MongoDB中测试数据所在集合",
+  "train": "train",
+  "train_comment": "MongoDB中训练数据所在集合",
+  "degree": "degree",
+  "degree_comment": "MongoDB中匹配度转换所在集合"
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from match_algorithm import MatchAlgorithm
+from cn.edu.shu.match.match_algorithm import MatchAlgorithm
 
 __author__ = 'jxxia'
 

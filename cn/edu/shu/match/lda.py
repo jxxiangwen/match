@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from get_data import get_datas_from_text, get_one_from_text
+from cn.edu.shu.match.get_data import get_datas_from_text, get_one_from_text
 import logging
 from time import strftime, localtime
 

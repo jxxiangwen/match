@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from get_data import get_datas_from_text, get_one_from_text
+from cn.edu.shu.match.get_data import get_datas_from_text, get_one_from_text
 import logging
 from time import strftime, localtime
 
@@ -10,16 +10,16 @@ __author__ = 'jxxia'
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename=('log/plsa_%s.log' % strftime('%Y-%m-%d', localtime())),
+                    filename=('log/lsi_%s.log' % strftime('%Y-%m-%d', localtime())),
                     filemode='a')
 
 
-def train_by_plsa(lib_texts, topic_num=9):
+def train_by_lsi(lib_texts, topic_num=9):
     """
     通过LSI模型的训练
     :param lib_texts:训练文本
     :param topic_num:主题数目
-    :return:plsa训练结果
+    :return:lsi训练结果
     """
     from gensim import corpora, models, similarities
     # print("lib_texts,", lib_texts)
@@ -40,8 +40,8 @@ def train_by_plsa(lib_texts, topic_num=9):
     return tuple((index, dictionary, lsi))
 
 
-def get_result_from_plsa(require_id, provide_id, algorithm_config, doc_type='text', src='require', dest='provide',
-                         read_file=True, match_need={}, topic_num=9):
+def get_result_from_lsi(require_id, provide_id, algorithm_config, doc_type='text', src='require', dest='provide',
+                        read_file=True, match_need={}, topic_num=9):
     """
     文档匹配结果
     :param require_id:全局需求id
@@ -62,7 +62,7 @@ def get_result_from_plsa(require_id, provide_id, algorithm_config, doc_type='tex
     #     text = get_datas_from_keys(src)
     #     sort_sims = []
     #     for doc_id, data in enumerate(get_one_from_keys(dest)):
-    #         (index, dictionary, lsi) = train_by_plsa(text, topic_num)
+    #         (index, dictionary, lsi) = train_by_lsi(text, topic_num)
     #         # 词袋处理
     #         ml_bow = dictionary.doc2bow(data)
     #         # 在上面选择的模型数据 lsi 中，计算其他数据与其的相似度
@@ -75,15 +75,15 @@ def get_result_from_plsa(require_id, provide_id, algorithm_config, doc_type='tex
     #         logging.warning("第%s篇%s文档匹配结果：%s" % (doc_id, dest, sort_sims))
     #     return tuple(require_id, provide_id,result, src)
     if 'text' == doc_type:
-        text = get_datas_from_text(require_id, provide_id, algorithm_config, dest, "plsa", read_file=read_file,
+        text = get_datas_from_text(require_id, provide_id, algorithm_config, dest, "lsi", read_file=read_file,
                                    match_need=match_need)
         # logging.warning("text : %s" % text)
         # print("text : ", text)
         sort_sims = []
         for doc_id, data in enumerate(
-                get_one_from_text(require_id, provide_id, algorithm_config, src, "plsa", read_file=read_file,
+                get_one_from_text(require_id, provide_id, algorithm_config, src, "lsi", read_file=read_file,
                                   match_need=match_need)):
-            (index, dictionary, lsi) = train_by_plsa(text, topic_num)
+            (index, dictionary, lsi) = train_by_lsi(text, topic_num)
             # 词袋处理
             ml_bow = dictionary.doc2bow(data)
             # 在上面选择的模型数据 lsi 中，计算其他数据与其的相似度

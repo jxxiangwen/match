@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from build_sql import MsSql
+from cn.edu.shu.match.build_sql import MsSql
 # 为了能看到过程日志
 import logging, json
 from time import strftime, localtime
@@ -13,7 +13,7 @@ __author__ = 'jxxia'
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename=('cn_matchPlsa_%s.log' % strftime('%Y-%m-%d', localtime())),
+                    filename=('match_lsi_%s.log' % strftime('%Y-%m-%d', localtime())),
                     filemode='w')
 # 全局变量，存储需求和服务编号顺序
 require_id = []

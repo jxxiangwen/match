@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from build_sql import MsSql
-from preprocess import pre_process_cn
-from tool import str_list_to_dict
+from cn.edu.shu.match.build_sql import MsSql
+from cn.edu.shu.match.preprocess import pre_process_cn
+from cn.edu.shu.match.tool import str_list_to_dict
 import json
 import logging
 from time import strftime, localtime
@@ -54,7 +54,7 @@ def get_datas_from_text(require_id, provide_id, algorithm_config, doc_type, algo
                 else:
                     text += (document[int_sub] + ",") * int(weight_dict[conclude_index])
         # logging.warning("第%s篇%s文档文章ID为：%s" % (index, doc_type, document[0]))
-        temp_list = []
+        temp_list = list()
         temp_list.append(text)
         return_data.append(pre_process_cn(temp_list)[0])
         # logging.warning("return_data: %s" %return_data)
@@ -96,7 +96,7 @@ def get_one_from_text(require_id, provide_id, algorithm_config, doc_type, algori
                 else:
                     text += (document[int_sub] + ",") * int(weight_dict[conclude_index])
         # logging.warning("第%s篇%s文档文章为：%s" % (index, doc_type, document[0]))
-        temp_list = []
+        temp_list = list()
         temp_list.append(text)
         yield pre_process_cn(temp_list)[0]
 

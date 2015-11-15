@@ -12,29 +12,29 @@ class Log_Config:
         with open('algorithm.json', encoding='utf-8') as f:
             json_data = json.load(f)
             algorithm_type = json_data['algorithm']
-            if "plsa" == algorithm_type:
+            if "lsi" == algorithm_type:
                 logging.basicConfig(level=logging.INFO,
                                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                                     datefmt='%a, %d %b %Y %H:%M:%S',
-                                    filename=('cn_matchPlsa_%s.log' % strftime('%Y-%m-%d', localtime())),
+                                    filename=('match_lsi_%s.log' % strftime('%Y-%m-%d', localtime())),
                                     filemode='a')
             elif "lda" == algorithm_type:
                 logging.basicConfig(level=logging.INFO,
                                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                                     datefmt='%a, %d %b %Y %H:%M:%S',
-                                    filename=('cn_matchLda_%s.log' % strftime('%Y-%m-%d', localtime())),
+                                    filename=('match_lda_%s.log' % strftime('%Y-%m-%d', localtime())),
                                     filemode='a')
             elif "cos" == algorithm_type:
                 logging.basicConfig(level=logging.INFO,
                                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                                     datefmt='%a, %d %b %Y %H:%M:%S',
-                                    filename=('cn_matchCos_%s.log' % strftime('%Y-%m-%d', localtime())),
+                                    filename=('match_cos_%s.log' % strftime('%Y-%m-%d', localtime())),
                                     filemode='a')
             elif "all" == algorithm_type:
                 logging.basicConfig(level=logging.INFO,
                                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                                     datefmt='%a, %d %b %Y %H:%M:%S',
-                                    filename=('cn_matchAll_%s.log' % strftime('%Y-%m-%d', localtime())),
+                                    filename=('match_all_%s.log' % strftime('%Y-%m-%d', localtime())),
                                     filemode='a')
             else:
                 raise ValueError

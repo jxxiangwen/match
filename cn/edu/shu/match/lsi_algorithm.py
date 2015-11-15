@@ -11,14 +11,15 @@ lda匹配算法
 """
 
 
-class LdaMatchAlgorithm(MatchAlgorithm):
+class LsiMatchAlgorithm(MatchAlgorithm):
     """
-    通过lda主题模型计算匹配度
+    通过lsi主题模型计算匹配度
     """
 
     def __init__(self):
-        self._require_model = ModelFactory().create_model('require', 'lda')  # 获取需求模型
-        self._provide_model = ModelFactory().create_model('provide', 'lda')  # 获取服务模型
+        super().__init__()
+        self._require_model = ModelFactory().create_model('require', 'lsi')  # 获取需求模型
+        self._provide_model = ModelFactory().create_model('provide', 'lsi')  # 获取服务模型
         self._require_model.set_text()
         self._provide_model.set_text()
         self._require_id = self._require_model.get_document_id()  # 获取需求号
@@ -34,7 +35,7 @@ class LdaMatchAlgorithm(MatchAlgorithm):
         :param num_topics: 模型的主题数目
         :return: 返回匹配结果
         """
-        self._provide_model.train('lda', 'provide', re_train, num_topics)
+        self._provide_model.train('lsi', 'provide', re_train, num_topics)
         return super().get_result(re_train, num_topics)
 
     def save_to_database(self, a_result):
@@ -56,5 +57,5 @@ class LdaMatchAlgorithm(MatchAlgorithm):
 
 
 if __name__ == '__main__':
-    match_algorithm = LdaMatchAlgorithm()
+    match_algorithm = LsiMatchAlgorithm()
     print(match_algorithm.get_result())

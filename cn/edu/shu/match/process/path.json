@@ -1,0 +1,12 @@
+{
+  "train_path": "./config/train.json",
+  "train_path_comment": "训练配置文件地址",
+  "test_path": "./config/test.json",
+  "test_path_comment": "测试配置文件地址",
+  "database_path": "./config/database.json",
+  "database_path_comment": "数据库配置文件地址",
+  "algorithm_config_path": "./config/algorithm.json",
+  "algorithm_config_path_comment": "算法配置文件地址",
+  "save_path": "./process/result",
+  "save_path_comment": "训练结果保存目录"
+}

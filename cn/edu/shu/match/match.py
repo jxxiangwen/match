@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from save import save_to_database
-from plsa import get_result_from_plsa
-from lda import get_result_from_lda
-from cosine import *
+from cn.edu.shu.match.save import save_to_database
+from cn.edu.shu.match.lsi import get_result_from_lsi
+from cn.edu.shu.match.lda import get_result_from_lda
+from cn.edu.shu.match.cosine import *
 import json
 import logging
 from time import strftime, localtime
@@ -29,11 +29,11 @@ def invoke_algorithm(individuation=False):
         with open('./config/algorithm.json', encoding='utf-8') as f:
             json_data = json.load(f)
             algorithm_type = json_data['algorithm']
-            if json_data['plsa']:
+            if json_data['lsi']:
                 save_to_database(
-                    *get_result_from_plsa(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
+                    *get_result_from_lsi(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
                                           dest='require'))
-                print(get_result_from_plsa(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
+                print(get_result_from_lsi(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
                                            dest='require'))
             elif json_data['lda']:
                 logging.debug("test")
@@ -42,7 +42,7 @@ def invoke_algorithm(individuation=False):
                                          dest='require'))
                 logging.debug("test")
             elif json_data['cos']:
-                save_to_database(*get_result_from_plsa(require_id, provide_id, 'text', src='provide', dest='require'))
+                save_to_database(*get_result_from_lsi(require_id, provide_id, 'text', src='provide', dest='require'))
             else:
                 raise ValueError
 
