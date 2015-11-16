@@ -16,12 +16,19 @@ class LsiMatchAlgorithm(MatchAlgorithm):
     通过lsi主题模型计算匹配度
     """
 
-    def __init__(self):
-        super().__init__()
-        self._require_model = ModelFactory().create_model('require', 'lsi')  # 获取需求模型
-        self._provide_model = ModelFactory().create_model('provide', 'lsi')  # 获取服务模型
-        self._require_model.set_text()
-        self._provide_model.set_text()
+    def __init__(self, train=True, read_file=True, match_need=dict()):
+        """
+        初始化函数
+        :param train: 为True使用训练数据，否则使用测试数据
+        :param read_file: 是否从文件中读取conclude和weight数据
+        :param match_need: 如果read_file为False，此处必填
+        :return: None
+        """
+        super().__init__(train, read_file, match_need)
+        self._require_model = ModelFactory().create_model('require', 'lsi', read_file, match_need)  # 获取需求模型
+        self._provide_model = ModelFactory().create_model('provide', 'lsi', read_file, match_need)  # 获取服务模型
+        self._require_model.set_text(train)
+        self._provide_model.set_text(train)
         self._require_id = self._require_model.get_document_id()  # 获取需求号
         self._provide_id = self._provide_model.get_document_id()  # 获取服务号
         self._require_text = self._require_model.get_text()  # 获取需求文本

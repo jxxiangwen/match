@@ -4,10 +4,8 @@
 from cn.edu.shu.match.save import save_to_database
 from cn.edu.shu.match.lsi import get_result_from_lsi
 from cn.edu.shu.match.lda import get_result_from_lda
-from cn.edu.shu.match.cosine import *
-import json
-import logging
 from time import strftime, localtime
+import logging,json
 
 __author__ = 'jxxia'
 """

@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import random, time
 from functools import reduce
-from plsa import get_result_from_plsa
-from lda import get_result_from_lda
-from cosine import *
-from build_json import BuildJson
-import json
-import logging
+from cn.edu.shu.match.lsi import get_result_from_lsi
+from cn.edu.shu.match.lda import get_result_from_lda
 from time import strftime, localtime
+import json, logging, random, time
 
 __author__ = 'jxxia'
 
@@ -29,7 +25,7 @@ class GeneticAlgorithm:
     遗传算法
     """
 
-    def cost(self, require_conclude, require_weight, provide_conclude, provide_weight, algorithm_type='plsa'):
+    def cost(self, require_conclude, require_weight, provide_conclude, provide_weight, algorithm_type='lsi'):
         """
         遗传算法成本计算函数
         :param require_conclude:需求匹配所包含索引
@@ -39,24 +35,24 @@ class GeneticAlgorithm:
         :param algorithm_type:算法类型
         :return:所需成本
         """
-        match_file = {}
+        match_file = dict()
         match_file['require_conclude'] = require_conclude
         match_file['require_weight'] = list(map(lambda x: str(x), require_weight))
         match_file['provide_conclude'] = provide_conclude
         match_file['provide_weight'] = list(map(lambda x: str(x), provide_weight))
         print(match_file)
-        if "plsa" == algorithm_type:
-            result = get_result_from_plsa(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
-                                          dest='require', read_file=False, match_need=match_file)
+        if "lsi" == algorithm_type:
+            result = get_result_from_lsi(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
+                                         dest='require', read_file=False, match_need=match_file)
         elif "lda" == algorithm_type:
             result = get_result_from_lda(require_id, provide_id, './config/algorithm.json', 'text', src='provide',
                                          dest='require', read_file=False, match_need=match_file)
         elif "cos" == algorithm_type:
-            result = get_result_from_plsa(require_id, provide_id, 'text', src='provide', dest='require',
-                                          read_file=False, match_need=match_file)
+            result = get_result_from_lsi(require_id, provide_id, 'text', src='provide', dest='require',
+                                         read_file=False, match_need=match_file)
         elif "all" == algorithm_type:
-            result = get_result_from_plsa(require_id, provide_id, 'text', src='provide', dest='require',
-                                          read_file=False, match_need=match_file)
+            result = get_result_from_lsi(require_id, provide_id, 'text', src='provide', dest='require',
+                                         read_file=False, match_need=match_file)
         else:
             raise ValueError
         # rusult 形式(require_id,provide_id,result,src)([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [[(0, 0.99987763), (4, 0.016127665), (3, 0.0084375618), (1, 0.0020131981), (2, 0.0)], [(1, 0.97787929), (0, 0.21180208), (3, 0.21044815), (4, 0.014341772), (2, 0.0)], [(2, 0.99399096), (4, 0.09167923), (3, 0.048688658), (0, 0.041444559), (1, 0.0032396186)], [(3, 0.94377685), (0, 0.25374854), (4, 0.23763916), (1, 0.1116139), (2, 0.0)], [(4, 0.99931318), (3, 0.092100404), (0, 0.025333783), (1, 0.021226577), (2, 0.0)]], 'provide')
@@ -80,7 +76,7 @@ class GeneticAlgorithm:
                 raise ValueError
         return score
 
-    def genetic_optimize(self, algorithm_type='plsa'):
+    def genetic_optimize(self, algorithm_type='lsi'):
         """
         遗传算法
         :param algorithm_type:算法类型
@@ -91,10 +87,10 @@ class GeneticAlgorithm:
         def mutate(weight_vector):
             print("变异前数据：%s" % weight_vector)
             i = random.randint(0, len(weight_vector) - 1)
-            if random.random() < 0.5 and weight_vector[i] > min:
+            if random.random() < 0.5 and weight_vector[i] > min_value:
                 print("变异返回：%s" % (weight_vector[0:i] + [weight_vector[i] - step] + weight_vector[i + 1:]))
                 return weight_vector[0:i] + [weight_vector[i] - step] + weight_vector[i + 1:]
-            elif weight_vector[i] < max:
+            elif weight_vector[i] < max_value:
                 print("变异返回：%s" % (weight_vector[0:i] + [weight_vector[i] + step] + weight_vector[i + 1:]))
                 return weight_vector[0:i] + [weight_vector[i] + step] + weight_vector[i + 1:]
             else:
@@ -111,8 +107,8 @@ class GeneticAlgorithm:
         with open('./config/genetic.json', encoding='utf-8') as genetic_file:
             genetic_json = json.load(genetic_file)
             with open('./config/algorithm.json', encoding='utf-8') as algorithm_file:
-                min = int(genetic_json['min'])
-                max = int(genetic_json['max'])
+                min_value = int(genetic_json['min_value'])
+                max_value = int(genetic_json['max_value'])
                 pop_size = int(genetic_json['pop_size'])
                 step = int(genetic_json['step'])
                 mutate_prob = float(genetic_json['mutate_prob'])
@@ -128,10 +124,10 @@ class GeneticAlgorithm:
                 require_weight_pop = []
                 provide_weight_pop = []
                 for i in range(pop_size):
-                    require_weight = [random.randint(min, max)
+                    require_weight = [random.randint(min_value, max_value)
                                       for i in range(len(require_conclude))]
                     require_weight_pop.append(require_weight)
-                    provide_weight = [random.randint(min, max)
+                    provide_weight = [random.randint(min_value, max_value)
                                       for i in range(len(provide_conclude))]
                     provide_weight_pop.append(provide_weight)
 

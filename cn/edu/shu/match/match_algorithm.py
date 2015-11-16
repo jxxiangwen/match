@@ -13,7 +13,17 @@ class MatchAlgorithm(object):
     定义匹配算法通用接口
     """
 
-    def __init__(self):
+    def __init__(self, train=True, read_file=True, match_need=dict()):
+        """
+        初始化函数
+        :param train: 为True使用训练数据，否则使用测试数据
+        :param read_file: 是否从配置文件中读取语料库
+        :param match_need: 如果read_file为False，此处必填
+        :return: None
+        """
+        self._read_file = read_file  # 是否从文件中读取conclude和weight数据
+        self._match_need = match_need  # 如果read_file为False，此处必填
+        self._train = train  # 为True使用训练数据，否则使用测试数据
         self._require_model = None  # 获取需求模型
         self._provide_model = None  # 获取服务模型
         self._require_id = list()  # 获取需求号

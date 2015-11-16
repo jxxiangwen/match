@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from cn.edu.shu.match.build_sql import MsSql
-import json
-import logging
 from time import strftime, localtime
+import logging,json
 
 __author__ = 'jxxia'
 

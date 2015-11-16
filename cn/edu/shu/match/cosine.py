@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import logging
 from time import strftime, localtime
+import logging
 
 __author__ = 'jxxia'
 

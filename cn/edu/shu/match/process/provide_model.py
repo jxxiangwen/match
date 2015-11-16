@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json
 from cn.edu.shu.match.process.model import Model
 from cn.edu.shu.match.process.get_text import get_data_from_text
-from cn.edu.shu.match.tool import str_value_to_int_list
+import sys
 
 __author__ = 'jxxia'
 
@@ -22,25 +21,26 @@ class ProvideModel(Model):
         """
         初始化函数
         :param algorithm_type: 需要训练的算法类型
-        :param read_file: 是否从配置文件中读取语料库
+        :param read_file: 是否从文件中读取conclude和weight数据
         :param match_need: 如果read_file为False，此处必填
         :return:
         """
         super().__init__(algorithm_type, read_file, match_need)
         self._document_id = list()
 
-    def set_text(self):
+    def set_text(self, train=True):
         """
-        设置训练语料库
-        :return: None
+        设置训练数据
+        :param train: 为True使用训练数据，否则使用测试数据
         """
-        with open(self._train_path, encoding='utf-8') as train_file:
-            train_json = json.load(train_file)
-            if not train_json['provide_id']:
-                raise TypeError("配置文件中不存在{}字段".format('provide_id'))
-            self._document_id = train_json['provide_id'].strip().split(',')  # 保存训练语料库中的需求id
-        self._document_id = str_value_to_int_list(self._document_id)  # 将字符串id转化为整数id
-        assert len(self._document_id) > 0, "配置文件中需求id不存在"
+        super().set_text(train)
+        self._mongo.set_collection(self._train_collection)  # 将MongoDB集合设置为训练集
+        try:
+            self._document_id = self._mongo.find()['provide_id']
+        except KeyError as e:
+            print("集合{}文件中不存在{}字段".format(self._train_collection, 'provide_id'))
+            sys.exit()
+        assert len(self._document_id) > 0, "集合{}文件中不存在{}字段长度为0".format(self._train_collection, 'provide_id')
         # 获取语料库
         self._text = get_data_from_text(self._document_id, self._algorithm_config_path, 'provide',
                                         self._algorithm_type, self._read_file, self._match_need)

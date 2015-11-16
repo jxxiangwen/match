@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json, os
+from cn.edu.shu.match.build_mongodb import Mongo
+import json
 
 __author__ = 'jxxia'
 
@@ -19,10 +20,11 @@ class Model(object):
         """
         初始化函数
         :param algorithm_type: 需要训练的算法类型
-        :param read_file: 是否从配置文件中读取语料库
+        :param read_file: 是否从文件中读取conclude和weight数据
         :param match_need: 如果read_file为False，此处必填
         :return:
         """
+        self._mongo = Mongo()  # 连接MongoDB数据库
         self._text = None  # 保存模型训练文本
         self._index = None  # 保存训练
         self._dictionary = None  # 保存训练词典
@@ -34,20 +36,26 @@ class Model(object):
             assert len(match_need) > 0, "match_need不能为空"
         self._read_file = read_file  # 是否从配置文件中读取语料库
         self._match_need = match_need  # 如果read_file为False，此处必填
+        with open('./config/mongodb.json', encoding='utf-8') as mongodb_file:
+            mongodb_json = json.load(mongodb_file)
+            self._train_collection = mongodb_json['train']  # 训练配置文件集合名
+            self._test_collection = mongodb_json['test']  # 测试配置文件地址
         with open('./process/path.json', encoding='utf-8') as path_file:
             path_json = json.load(path_file)
-            self._train_path = path_json['train_path']  # 训练配置文件地址
-            self._test_path = path_json['test_path']  # 测试配置文件地址
-            self._database_path = path_json['database_path']  # 数据库配置文件地址
             self._algorithm_config_path = path_json['algorithm_config_path']  # 算法配置文件地址
             self._save_path = path_json['save_path']  # 训练结果保存目录
+            self._database_path = path_json['database_path']  # 数据库配置文件地址
 
-    def set_text(self):
+    def set_text(self, train=True):
         """
         设置训练数据
+        :param train: 为True使用训练数据，否则使用测试数据
         :return: None
         """
-        pass
+        if train:
+            self._mongo.set_collection(self._train_collection)  # 将MongoDB集合设置为训练集
+        else:
+            self._mongo.set_collection(self._test_collection)  # 将MongoDB集合设置为测试集合
 
     def get_text(self):
         """
@@ -66,11 +74,11 @@ class Model(object):
         :return: None
         """
         from gensim import corpora, models, similarities
-        import time
+        # import time
 
-        start = time.clock()
+        # start = time.clock()
         if re_train:
-            print("正在重新训练模型")
+            # print("正在重新训练模型")
             # print("lib_texts,", lib_texts)
             self._dictionary = corpora.Dictionary(self._text)  # 将文本转化为词典形式为(word,word_id)
             #  logging.info("dictionary: %s" % dictionary)
@@ -99,7 +107,7 @@ class Model(object):
             self._index.save('{}/{}.index'.format(self._save_path, doc_type))
             self._model.save('{}/{}.{}'.format(self._save_path, doc_type, model_type))
         else:
-            print("正在加载已训练模型")
+            # print("正在加载已训练模型")
             # 从保存的训练数据中加载返回
             self._dictionary = corpora.Dictionary.load('{}/{}.dict'.format(self._save_path, doc_type))
             self._corpus = corpora.MmCorpus('{}/{}.corpus'.format(self._save_path, doc_type))
@@ -110,8 +118,8 @@ class Model(object):
                 self._model = models.LdaModel.load('{}/{}.{}'.format(self._save_path, doc_type, model_type))
             else:
                 raise TypeError("模型类型{}不存在".format(model_type))
-        end = time.clock()
-        print("模型构建运行了: %f 秒" % (end - start))
+        # end = time.clock()
+        # print("模型构建运行了: %f 秒" % (end - start))
 
     def get_model(self):
         """

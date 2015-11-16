@@ -2,35 +2,54 @@
 # -*- coding: utf-8 -*-
 
 from functools import reduce
-from cn.edu.shu.match.lsi import get_result_from_lsi
-from cn.edu.shu.match.lda import get_result_from_lda
-from cn.edu.shu.match.lsi_algorithm import LsiMatchAlgorithm
-from cn.edu.shu.match.lda_algorithm import LdaMatchAlgorithm
-from cn.edu.shu.match.cosine import *
-from cn.edu.shu.match.build_json import BuildJson
-from cn.edu.shu.match.tool import str_value_to_int_list
-import random, time
-import json
-import logging
+from cn.edu.shu.match.match_algorithm_factory import MatchAlgorithmFactory
+from cn.edu.shu.match.build_mongodb import Mongo
 from time import strftime, localtime
+import numpy as np
+import random, time, json, sys, logging
 
 __author__ = 'jxxia'
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename=('log/GeneticalAgorithm_%s.log' % strftime('%Y-%m-%d', localtime())),
+                    filename=('log/genetic_algorithm_%s.log' % strftime('%Y-%m-%d', localtime())),
                     filemode='a')
-
-# 全局变量，存储需求和服务编号顺序
-require_id = []
-provide_id = []
 
 
 class GeneticAlgorithm:
     """
     遗传算法
     """
+
+    def __init__(self, algorithm_type='lsi', train=True):
+        """
+        初始化函数
+        :param algorithm_type: 算法类型
+        :param train: 为True使用训练数据，否则使用测试数据
+        :return: None
+        """
+        self._algorithm_type = algorithm_type  # 匹配算法类型
+        self.re_train = True  # 重新训练还是直接读取训练结果
+        self._train = train  # 为True使用训练数据，否则使用测试数据
+        self._mongo = Mongo()  # 连接MongoDB数据库
+        self._match_algorithm = None  # 算法类型
+        with open('./config/mongodb.json', encoding='utf-8') as mongodb_file:
+            mongodb_json = json.load(mongodb_file)
+            if self._train:
+                self._mongo.set_collection(mongodb_json['train'])  # 训练配置文件集合名
+            else:
+                self._mongo.set_collection(mongodb_json['test'])  # 测试配置文件地址
+        self._match_degree = None  # 算法计算的匹配度
+        try:
+            self._match_real_degree = np.array(self._mongo.find()['match_degree'])  # 人工设置的匹配度
+            self._result_require_id = self._mongo.find()['require_id']
+            self._result_provide_id = self._mongo.find()['provide_id']
+        except KeyError as e:
+            print("集合{}文件中不存在{}字段".format(self._mongo.get_collection(), 'require_id or provide_id or match_degree'))
+            sys.exit()
+        self._weight = dict()  # 保存训练的权重数据，用来保存到MongDB
+        self._weight['algorithm_type'] = self._algorithm_type
 
     def cost(self, require_conclude, require_weight, provide_conclude, provide_weight, algorithm_type='lsi'):
         """
@@ -42,60 +61,45 @@ class GeneticAlgorithm:
         :param algorithm_type:算法类型
         :return:所需成本
         """
-        match_file = dict()
-        match_file['require_conclude'] = require_conclude
-        match_file['require_weight'] = list(map(lambda x: str(x), require_weight))
-        match_file['provide_conclude'] = provide_conclude
-        match_file['provide_weight'] = list(map(lambda x: str(x), provide_weight))
-        print(match_file)
-        match_algorithm = None
-        if "lsi" == algorithm_type:
-            match_algorithm = LsiMatchAlgorithm()
-            # result = match_algorithm.get_result(re_train=True, num_topics=5)  # 重新训练
-            result = match_algorithm.get_result(False)  # 不重新训练
-        elif "lda" == algorithm_type:
-            match_algorithm = LdaMatchAlgorithm()
-            # result = match_algorithm.get_result(re_train=True, num_topics=5)  # 重新训练
-            result = match_algorithm.get_result(False)  # 不重新训练
-        elif "cos" == algorithm_type:
-            pass
-        elif "all" == algorithm_type:
-            pass
+        self._weight['require_conclude'] = require_conclude
+        self._weight['require_weight'] = list(map(lambda x: str(x), require_weight))
+        self._weight['provide_conclude'] = provide_conclude
+        self._weight['provide_weight'] = list(map(lambda x: str(x), provide_weight))
+        print('self._weight:{}'.format(self._weight))
+        self._match_algorithm = MatchAlgorithmFactory().create_match_algorithm(self._algorithm_type, self._train,
+                                                                               read_file=False,
+                                                                               match_need=self._weight)  # 算法类型
+        if self.re_train:
+            self._match_degree = self._match_algorithm.get_result(re_train=True, num_topics=5)  # 重新训练
+            assert self._result_require_id == self._match_algorithm.get_require_id()
+            assert self._result_provide_id == self._match_algorithm.get_provide_id()
+            self.re_train = False
         else:
-            raise ValueError
+            self._match_degree = self._match_algorithm.get_result(False)  # 不重新训练
+
         # rusult 形式为len(require_id) * len(provide_id)的矩阵
-        result_require_id = match_algorithm.get_require_id()
-        result_provide_id = match_algorithm.get_provide_id()
-        with open('./config/match.json', encoding='utf-8') as match_file:
-            match_json = json.load(match_file)
-            result_real_require_id = match_json['require_id']  # 用来训练的需求id
-            result_real_provide_id = match_json['provide_id']  # 用来训练的服务id
-            # 转化为int型list
-            result_real_require_id == str_value_to_int_list(result_real_require_id)
-            result_real_provide_id == str_value_to_int_list(result_real_provide_id)
-            for train_require_id in result_real_require_id:
-                if result_require_id.count(train_require_id) == 0:
-                    raise IndexError("数据库中不存在id为{}的需求文档".format(train_require_id))
-            for train_provide_id in result_real_provide_id:
-                if result_provide_id.count(train_provide_id) == 0:
-                    raise IndexError("数据库中不存在id为{}的服务文档".format(train_provide_id))
-        match_degree = result[2]  # 存储匹配结果
-        src = result[3]
+        difference = self._match_real_degree - self._match_degree
         score = 0.0
-        with open('./config/match.json', encoding='utf-8') as match_file:
-            match_json = json.load(match_file)
-            if 'require' == src:
-                raise AttributeError('src为require暂时还未开始')
-            elif 'provide' == src:
-                for src_id in result_provide_id:
-                    match_real_degree = match_json['match_degree_' + str(src_id)].strip().split(',')  # 获取配置表中真实匹配状况
-                    match_result = match_degree[src_id - 1]  # 获取某一文档匹配结果
-                    for index, virtual_degree in match_result:
-                        score += (virtual_degree - float(match_real_degree[index])) ** 2  # 将真实结果和算法所求结果差值的平方作文损失函数
-                print("score: %s" % score)
-            else:
-                raise ValueError
+        score = np.sum(np.square(difference))
+        self._weight['score'] = score
+        if score < 0.25:
+            self.save(self._weight)
         return score
+
+    def insert(self, data):
+        """
+        保存效果好的权重数据
+        :param data: 要保存的数据
+        :return:
+        """
+        with open('./config/mongodb.json', encoding='utf-8') as mongodb_file:
+            mongodb_json = json.load(mongodb_file)
+            self._mongo.set_collection(mongodb_json['weight'])  # 保存权重的集合名
+            self._mongo.insert(data)
+            if self._train:
+                self._mongo.set_collection(mongodb_json['train'])  # 训练配置文件集合名
+            else:
+                self._mongo.set_collection(mongodb_json['test'])  # 测试配置文件地址
 
     def genetic_optimize(self, algorithm_type='lsi'):
         """
@@ -108,7 +112,7 @@ class GeneticAlgorithm:
         def mutate(weight_vector):
             print("变异前数据：%s" % weight_vector)
             i = random.randint(0, len(weight_vector) - 1)
-            if random.random() < 0.5 and weight_vector[i] > min:
+            if random.random() < 0.5 and weight_vector[i] > min_value:
                 print("变异返回：%s" % (weight_vector[0:i] + [weight_vector[i] - step] + weight_vector[i + 1:]))
                 return weight_vector[0:i] + [weight_vector[i] - step] + weight_vector[i + 1:]
             elif weight_vector[i] < max_value:

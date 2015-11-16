@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from cn.edu.shu.match.build_sql import MsSql
-# 为了能看到过程日志
-import logging, json
 from time import strftime, localtime
+import logging, json
 
 __author__ = 'jxxia'
 """

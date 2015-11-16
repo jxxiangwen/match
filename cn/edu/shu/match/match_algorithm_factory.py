@@ -24,15 +24,18 @@ class MatchAlgorithmFactory(object):
         self.algorithm = dict()
         self.algorithm_type = ['lsi', 'lda', 'cos']
 
-    def create_match_algorithm(self, algorithm_name):
+    def create_match_algorithm(self, algorithm_name, train=True, read_file=True, match_need=dict()):
         """
         通过algorithm_name创建匹配算法对象
         :param algorithm_name: 需要创建的算法对象类型
+        :param train: 为True使用训练数据，否则使用测试数据
+        :param read_file: 是否从文件中读取conclude和weight数据
+        :param match_need: 如果read_file为False，此处必填
         :return: 创建的算法对象，如果不存在则抛出TypeError异常
         """
-        self.algorithm['lsi'] = LsiMatchAlgorithm()
-        self.algorithm['lda'] = LdaMatchAlgorithm()
-        self.algorithm['cos'] = CosMatchAlgorithm()
+        self.algorithm['lsi'] = LsiMatchAlgorithm(train, read_file, match_need)
+        self.algorithm['lda'] = LdaMatchAlgorithm(train, read_file, match_need)
+        self.algorithm['cos'] = CosMatchAlgorithm(train, read_file, match_need)
         if algorithm_name in self.algorithm_type:
             return self.algorithm[algorithm_name]
         raise TypeError("不存在{}算法".format(algorithm_name))

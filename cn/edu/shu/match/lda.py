@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from cn.edu.shu.match.get_data import get_datas_from_text, get_one_from_text
-import logging
 from time import strftime, localtime
+import logging
 
 __author__ = 'jxxia'
 

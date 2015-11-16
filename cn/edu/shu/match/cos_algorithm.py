@@ -15,9 +15,21 @@ class CosMatchAlgorithm(MatchAlgorithm):
     通过余弦相似度计算匹配度
     """
 
-    def get_result(self):
+    def __init__(self, train=True, read_file=True, match_need=dict()):
+        """
+        初始化函数
+        :param train: 为True使用训练数据，否则使用测试数据
+        :param read_file: 是否从文件中读取conclude和weight数据
+        :param match_need: 如果read_file为False，此处必填
+        :return: None
+        """
+        super().__init__(train, read_file, match_need)
+
+    def get_result(self, re_train=True, num_topics=5):
         """
         得到算法匹配结果
+        :param re_train: 是否重新训练模型
+        :param num_topics: 模型的主题数目
         :return: 返回匹配结果
         """
         pass

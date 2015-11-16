@@ -6,9 +6,8 @@ Created on Sun Jun 28 10:50:50 2015
 @author: 祥文
 """
 
-import pymssql, json
-import logging
 from time import strftime, localtime
+import pymssql, json, logging
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
@@ -27,12 +26,12 @@ class MsSql:
     """
 
     def __init__(self):
-        with open('./config/database.json', encoding='utf-8') as f:
-            json_data = json.load(f)
-            self.host = json_data['host']
-            self.user = json_data['user']
-            self.password = json_data['password']
-            self.database = json_data['database']
+        with open('./config/database.json', encoding='utf-8') as database_file:
+            database_json = json.load(database_file)
+            self.host = database_json['host']
+            self.user = database_json['user']
+            self.password = database_json['password']
+            self.database = database_json['database']
 
     def __get_connect(self):
         """
@@ -98,4 +97,4 @@ if __name__ == '__main__':
         print("user_key_result", user_key_result)
     # 取出所有记录，返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
     for user_infor in user_key_result:
-        print("UserInfor_ID:{0},UserInfor_Name:{1}".format(str(user_infor[0]),user_infor[2]))
+        print("UserInfor_ID:{0},UserInfor_Name:{1}".format(str(user_infor[0]), user_infor[2]))

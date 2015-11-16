@@ -12,6 +12,6 @@
     "mutate_prob_comment": "种群的新成员是由变异而非交叉的来的概率",
     "elite": 0.5,
     "elite_comment": "种群中被认为是优解且被允许传入下一代的部分",
-    "max_iter": 50,
+    "max_iter": 5,
     "max_iter_comment": "需迭代多少代"
 }

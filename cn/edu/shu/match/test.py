@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json
-
-from cn.edu.shu.match.process.model import Model
 from cn.edu.shu.match.process.model_factory import ModelFactory
 from cn.edu.shu.match.process.require_model import RequireModel
 from cn.edu.shu.match.process.provide_model import ProvideModel

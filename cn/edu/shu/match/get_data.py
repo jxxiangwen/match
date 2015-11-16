@@ -4,9 +4,8 @@
 from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.preprocess import pre_process_cn
 from cn.edu.shu.match.tool import str_list_to_dict
-import json
-import logging
 from time import strftime, localtime
+import logging,json
 
 __author__ = 'jxxia'
 

@@ -4,9 +4,8 @@
 from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.process.preprocess import pre_process_cn
 from cn.edu.shu.match.tool import str_list_to_dict
-import json
-import logging
 from time import strftime, localtime
+import logging,json
 
 __author__ = 'jxxia'
 
@@ -124,5 +123,6 @@ def product_conclude_weight(algorithm_config_path, doc_type, algorithm_type, rea
             else:
                 assert len(match_need) > 0, "匹配所需数据不能为空"
                 data_index = match_need['{}_conclude'.format(doc_type)]
-                weight_dict = str_list_to_dict(','.join(match_need['{}_weight'.format(doc_type)]))
+                weight_dict = match_need['{}_weight'.format(doc_type)]
+                # weight_dict = str_list_to_dict(','.join(match_need['{}_weight'.format(doc_type)]))
     return tuple((data, data_index, weight_dict))
