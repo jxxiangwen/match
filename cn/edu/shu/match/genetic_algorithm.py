@@ -34,12 +34,14 @@ class GeneticAlgorithm:
         self._train = train  # 为True使用训练数据，否则使用测试数据
         self._mongo = Mongo()  # 连接MongoDB数据库
         self._match_algorithm = None  # 算法类型
+        self._weight_min = 0  # 训练数据最终得分小于weight_min时保存到MongoDB的weight集合中
         with open('./config/mongodb.json', encoding='utf-8') as mongodb_file:
             mongodb_json = json.load(mongodb_file)
             if self._train:
                 self._mongo.set_collection(mongodb_json['train'])  # 训练配置文件集合名
             else:
                 self._mongo.set_collection(mongodb_json['test'])  # 测试配置文件地址
+            self._weight_min = mongodb_json['weight_min']
         self._match_degree = None  # 算法计算的匹配度
         try:
             self._match_real_degree = np.array(self._mongo.find()['match_degree'])  # 人工设置的匹配度
@@ -82,8 +84,8 @@ class GeneticAlgorithm:
         score = 0.0
         score = np.sum(np.square(difference))
         self._weight['score'] = score
-        if score < 0.25:
-            self.save(self._weight)
+        if score < self._weight_min:
+            self.insert(self._weight)
         return score
 
     def insert(self, data):

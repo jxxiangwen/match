@@ -5,6 +5,8 @@
   "default_database_comment" : "默认使用MongoDB哪个数据库",
   "weight": "weight",
   "weight_comment": "MongoDB中文档权重所在集合",
+  "weight_min": 0.15,
+  "weight_min_comment": "训练数据最终得分小于weight_min时保存到MongoDB的weight集合中",
   "genetic": "genetic",
   "genetic_comment": "MongoDB中遗传算法配置所在集合",
   "default_collection": "train",
