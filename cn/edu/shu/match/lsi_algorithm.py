@@ -47,14 +47,6 @@ class LsiMatchAlgorithm(MatchAlgorithm):
         self._provide_model.train('lsi', 'provide', re_train, num_topics)
         return super().get_result(re_train, num_topics)
 
-    def save_to_database(self, a_result):
-        """
-        是否将匹配结果存入数据库
-        :param a_result: 要存入的结果
-        :return: 是否成功存入数据库
-        """
-        pass
-
     def compute_match_result(self, first_doc, second_doc):
         """
         计算传入数据的算法匹配结果
@@ -66,5 +58,5 @@ class LsiMatchAlgorithm(MatchAlgorithm):
 
 
 if __name__ == '__main__':
-    match_algorithm = LsiMatchAlgorithm('all')
-    print(match_algorithm.get_result())
+    match_algorithm = LsiMatchAlgorithm('train')
+    print(type(match_algorithm.get_result()))

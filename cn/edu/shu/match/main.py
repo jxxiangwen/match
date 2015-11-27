@@ -15,6 +15,15 @@ logging.basicConfig(level=logging.INFO,
 __author__ = 'jxxia'
 
 if __name__ == '__main__':
+    # lsa算法获得更好权重
+    lsi_get_comment = GetComment('lsi')
+    lsi_get_comment.init_record()
+    # lda算法获得更好权重
+    lda_get_comment = GetComment('lda')
+    lda_get_comment.init_record()
+    # cos算法获得更好权重
+    cos_get_comment = GetComment('cos')
+    cos_get_comment.init_record()
     while True:
         start = time.clock()
         ms_sql = MsSql()
@@ -29,32 +38,39 @@ if __name__ == '__main__':
         match_algorithm_factory = MatchAlgorithmFactory()
         with open('./config/algorithm.json', encoding='utf-8') as algorithm_file:
             algorithm_json = json.load(algorithm_file)
+            lsi_threshold = algorithm_json['lsi_threshold']
+            lda_threshold = algorithm_json['lda_threshold']
+            # cos_threshold = algorithm_json['cos_threshold']
+            min_threshold = min(lsi_threshold, lda_threshold)
+            print(min_threshold)
+            bool_result = None  # 存储布尔型结果矩阵
             if algorithm_json['lsi'] or algorithm_json['lda'] or algorithm_json['cos']:
                 if algorithm_json['lsi']:
                     # lsi算法
-                    match_algorithm = match_algorithm_factory.create_match_algorithm('lsi', 'all', require_id, provide_id)
+                    match_algorithm = match_algorithm_factory.create_match_algorithm('lsi', 'all', require_id,
+                                                                                     provide_id)
                     lsi_result = match_algorithm.get_result(True)
-                    lsi_get_comment = GetComment('lsi')
-                    lsi_get_comment.init_record()
+                    bool_result = lsi_result > lsi_threshold
+                    # 获得更好权重
                     lsi_get_comment.do_better()
+                    print('lsi运算结果{}'.format(lsi_result))
                 if algorithm_json['lda']:
                     # lda算法
-                    match_algorithm = match_algorithm_factory.create_match_algorithm('lda', 'all', require_id, provide_id)
+                    match_algorithm = match_algorithm_factory.create_match_algorithm('lda', 'all', require_id,
+                                                                                     provide_id)
                     lda_result = match_algorithm.get_result(True)
-                    lda_get_comment = GetComment('lda')
-                    lda_get_comment.init_record()
+                    bool_result &= lda_result > lda_threshold
                     lda_get_comment.do_better()
+                    print('lda运算结果{}'.format(lda_result))
                 if algorithm_json['cos']:
                     # cos算法
-                    match_algorithm = match_algorithm_factory.create_match_algorithm('cos', 'all', require_id, provide_id)
+                    match_algorithm = match_algorithm_factory.create_match_algorithm('cos', 'all', require_id,
+                                                                                     provide_id)
                     cos_result = match_algorithm.get_result(True)
-                    cos_get_comment = GetComment('cos')
-                    cos_get_comment.init_record()
+                    # bool_result &= cos_result > cos_threshold
                     cos_get_comment.do_better()
             else:
                 raise ValueError("至少需要选择一个算法")
-        end = time.clock()
-        print('lsi运算结果{}'.format(lsi_result))
-        print('lda运算结果{}'.format(lda_result))
-        print("程序运行了: %f 秒" % (end - start))
 
+        end = time.clock()
+        print("程序运行了: %f 秒" % (end - start))

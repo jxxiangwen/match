@@ -97,6 +97,21 @@ def change_algorithm_json(file_path, **kw):
     change_json_file(file_path, **a_dict)
 
 
+def result_merge(require_id, provide_id, *result):
+    """
+    合并运算结果
+    :param require_id: 需求id
+    :param provide_id: 服务id
+    :param result: 运算结果
+    :return:
+    """
+    if 0 == len(require_id) or 0 == len(provide_id):
+        return
+    for require_index in require_id:
+        for provide_index in provide_id:
+            pass
+
+
 if __name__ == '__main__':
     a_dict = {'provide_conclude': ['2', '4', '8', '9', '12', '16', '17', '18', '20', '25'],
               'score': 0.08683506435346335,

@@ -31,7 +31,7 @@ class GetComment(object):
         self._record_collection = None  # 保存record集合名称
         self._weight_collection = None  # 保存weight集合名称
         self._mongo = Mongo()  # 连接MongoDB数据库
-        self._match_structure = list()  # 匹配评分表结构
+        self._match_comment_structure = list()  # 匹配评分表结构
         self._match_good = 0  # 匹配评分大于多少才算好
         self._match_comment_number = 0  # 要搜集多少好的评分
         self._match_weight_number = 0  # 要搜集多少好的权重
@@ -43,12 +43,12 @@ class GetComment(object):
             self._record_collection = mongodb_json['record']
             self._weight_collection = mongodb_json['weight']
             self._mongo.set_collection(self._weight_collection)
-        with open('./config/match_comment.json', encoding='utf-8') as match_comment_file:
+        with open('./config/match_comment_table.json', encoding='utf-8') as match_comment_file:
             match_comment_json = json.load(match_comment_file)
             self._match_good = match_comment_json['match_good']
             self._match_comment_number = match_comment_json['match_comment_number']
             self._match_weight_number = match_comment_json['match_weight_number']
-            self._match_structure = match_comment_json['match_structure']
+            self._match_comment_structure = match_comment_json['match_comment_structure']
 
     def init_record(self):
         """
@@ -98,7 +98,7 @@ class GetComment(object):
             return
         else:
             # 评论次数足够
-            DocMatchInfoComment = namedtuple('DocMatchInfoComment', self._match_structure)  # 命名元组
+            DocMatchInfoComment = namedtuple('DocMatchInfoComment', self._match_comment_structure)  # 命名元组
             sum_value = 0
             for result in results:
                 match = DocMatchInfoComment(*result)
@@ -119,6 +119,8 @@ class GetComment(object):
                     # 权重收集足够，使用遗传算法跑出更好权重
                     self._genetic_algorithm.genetic_optimize(self._record['good_require_weight'],
                                                              self._record['good_provide_weight'])
+                    #重新初始化
+                    self.init_record()
                 # 改变权重重新跑
                 self.change_weight()
 

@@ -88,15 +88,22 @@ class MsSql:
         self.conn.commit()
         self.conn.close()
 
+    def get_cursor(self):
+        """
+        得到cursor
+        :return:
+        """
+        return self.__get_connect()
+
 
 if __name__ == '__main__':
     # 创建一个数据库对象
     sql = MsSql()
-    match_structure = list()
-    with open('./config/match_comment.json', encoding='utf-8') as match_comment_file:
+    match_comment_structure = list()
+    with open('./config/match_comment_table.json', encoding='utf-8') as match_comment_file:
         match_comment_json = json.load(match_comment_file)
-        match_structure = match_comment_json['match_structure']
-    DocMatchInfoComment = namedtuple('DocMatchInfoComment', match_structure)
+        match_comment_structure = match_comment_json['match_comment_structure']
+    DocMatchInfoComment = namedtuple('DocMatchInfoComment', match_comment_structure)
     str = "select * from DocMatchInfoComment where match_id  in (select DocMatchInfor_ID from DocMatchInfor where Algorithm_Type like '%lsi%') and create_time between '{}' and '{}'".format(
         str(datetime.datetime.now() - datetime.timedelta(days=10))[0:-3], str(datetime.datetime.now())[0:-3])
     # str = "select * from DocMatchInfoComment WHERE create_time < '{}'".format(str(datetime.datetime.now())[0:-3])

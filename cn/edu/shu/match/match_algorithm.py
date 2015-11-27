@@ -1,14 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'jxxia'
+from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.build_mongodb import Mongo
+from time import strftime, localtime
 import numpy as np
-import json, sys
+import json, sys, json
+
+__author__ = 'jxxia'
 
 """
 匹配算法接口类
 """
+
+sql = MsSql()
+match_table_name = None
+require_id_name = None
+provide_id_name = None
+with open('./config/match_table.json', encoding='utf-8') as table_file:
+    table_json = json.load(table_file)
+    match_table_name = table_json['match']
+    require_id_name = table_json['match_require_id']
+    provide_id_name = table_json['match_provide_id']
+    degree_name = table_json['match_degree']
 
 
 class MatchAlgorithm(object):
@@ -50,13 +64,13 @@ class MatchAlgorithm(object):
             ml_model = model[ml_bow]  # ml_lsi 形式如 (topic_id, topic_value)
             try:
                 sims = index[ml_model]  # sims 是最终结果了， index[xxx] 调用内置方法 __getitem__() 来计算ml_lsi
+                # 排序，为输出方便
+                sort_sims = sorted(enumerate(sims), key=lambda item: -item[1])
+                for destination_id, score in sort_sims:
+                    self._result_matrix[resource_id][destination_id] = score
             except IndexError as e:
                 print("计算匹配度出错")
                 return
-            # 排序，为输出方便
-            sort_sims = sorted(enumerate(sims), key=lambda item: -item[1])
-            for destination_id, score in sort_sims:
-                self._result_matrix[resource_id][destination_id] = score
 
         return self._result_matrix
 
@@ -101,7 +115,19 @@ class MatchAlgorithm(object):
         score = np.sum(np.square(difference))  # 损失函数
         return score
 
-    def save_to_database(self, require_id, provide_id, result, algorithm_type):
+    @staticmethod
+    def degree_transform(degree):
+        """
+        将余弦相似度转化为匹配度
+        :param degree: 余弦相似度
+        :return:匹配度
+        """
+        with open('./config/degree.json', encoding='utf-8') as degree_file:
+            degree_json = json.load(degree_file)
+            return degree_json[str(int(abs(degree) * 100))]
+
+    @staticmethod
+    def save(require_id, provide_id, result, algorithm_type):
         """
         是否将匹配结果存入数据库
         :param require_id: 需求id
@@ -110,10 +136,34 @@ class MatchAlgorithm(object):
         :param algorithm_type: 算法类型
         :return: 是否成功存入数据库
         """
-        if 0 == len(require_id) or 0 == len(provide_id):
+        search_str = "select * from {} WHERE {}={} AND {}={}".format(match_table_name, require_id_name, require_id,
+                                                                     provide_id_name, provide_id)
+        result = sql.exec_search(search_str)
+        if 0 == len(result):
+            # 保存记录UPDATE Person SET FirstName = 'Fred' WHERE LastName = 'Wilson'
+            sql.exec_non_search("INSERT INTO %s VALUES ('%s', '%s', '%s', '0', '%s', '0', '0',%s)" % (
+                match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
+                strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
+        else:
+            # 更新记录
+            sql.exec_non_search("UPDATE %s SET %s = %d WHERE %s = %d AND %s = %d" % (
+                match_table_name, degree_name, MatchAlgorithm.degree_transform(result), require_id_name, require_id,
+                provide_id_name, provide_id))
+
+    @staticmethod
+    def save_to_database(require_id_list, provide_id_list, result_matrix, algorithm_type):
+        """
+        是否将匹配结果存入数据库
+        :param require_id_list: 需求id
+        :param provide_id_list: 服务id
+        :param result_matrix: 要存入的结果矩阵
+        :param algorithm_type: 算法类型
+        :return: 是否成功存入数据库
+        """
+        if 0 == len(require_id_list) or 0 == len(provide_id_list):
             return
-        for require_index in require_id:
-            for provide_index in provide_id:
+        for require_index in require_id_list:
+            for provide_index in provide_id_list:
                 pass
 
     def compute_match_result(self, first_doc, second_doc):
@@ -124,3 +174,7 @@ class MatchAlgorithm(object):
         :return: 返回匹配结果
         """
         pass
+
+
+if __name__ == '__main__':
+    MatchAlgorithm.save(5, 5, 3, 4)

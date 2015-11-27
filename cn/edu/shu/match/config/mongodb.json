@@ -9,6 +9,8 @@
   "lsi_weight_min_comment": "lsi训练数据最终得分小于weight_min时保存到MongoDB的weight集合中",
   "lda_weight_min": 2.5,
   "lda_weight_min_comment": "lda训练数据最终得分小于weight_min时保存到MongoDB的weight集合中",
+  "cos_weight_min": 2.5,
+  "cos_weight_min_comment": "cos训练数据最终得分小于weight_min时保存到MongoDB的weight集合中",
   "individual": "individual",
   "individual_comment": "MongoDB中个性化算法配置所在集合",
   "genetic": "genetic",

@@ -7,8 +7,16 @@
   "match_weight_number_comment": "要搜集多少好的权重",
   "match_comment": "DocMatchInfoComment",
   "match_comment_table_comment": "匹配评分表名",
-  "match_structure":["id", "origin_type", "create_time", "user_id", "score", "comment", "match_id"],
-  "match_structure_comment":"匹配评分表结构",
+  "match_comment_structure": [
+    "id",
+    "origin_type",
+    "create_time",
+    "user_id",
+    "score",
+    "comment",
+    "match_id"
+  ],
+  "match_comment_structure_comment": "匹配评分表结构",
   "match_comment_id": "id",
   "match_comment_id_index": 0,
   "match_comment_id_comment": "匹配评分表id索引名称",
