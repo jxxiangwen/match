@@ -1,0 +1,57 @@
+{
+    "default": false,
+    "match_degree": [
+        [
+            1,
+            0,
+            0,
+            0,
+            0
+        ],
+        [
+            0,
+            1,
+            0,
+            0,
+            0
+        ],
+        [
+            0,
+            0,
+            1,
+            0,
+            0
+        ],
+        [
+            0,
+            0,
+            0,
+            1,
+            0
+        ],
+        [
+            0,
+            0,
+            0,
+            0,
+            1
+        ]
+    ],
+    "match_degree_comment": "文档匹配状况",
+    "provide_id": [
+        6,
+        7,
+        8,
+        9,
+        10
+    ],
+    "provide_id_comment": "服务id",
+    "require_id": [
+        6,
+        7,
+        8,
+        9,
+        10
+    ],
+    "require_id_comment": "需求id"
+}

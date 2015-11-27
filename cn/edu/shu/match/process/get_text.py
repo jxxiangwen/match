@@ -30,12 +30,16 @@ def get_data_from_text(doc_id, algorithm_config, doc_type, algorithm_type, read_
     """
     data, data_index, weight_dict = product_conclude_weight(algorithm_config, doc_type, algorithm_type, read_file,
                                                             match_need)
-
     return_data = list()  # 返回数据
-    # 去掉不在文档id中的数据
+
+    remove_list = list()
+    # 查找不在文档id中的数据
     for document in data:
         if document[0] not in doc_id:
-            data.remove(document)
+            remove_list.append(document)
+    # 去掉不在文档id中的数据
+    for document in remove_list:
+        data.remove(document)
     for document in data:
         text = str()
         # 提取文档匹配所需信息

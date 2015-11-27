@@ -6,8 +6,9 @@ Created on Sun Jun 28 10:50:50 2015
 @author: 祥文
 """
 
+from collections import namedtuple
 from time import strftime, localtime
-import pymssql, json, logging
+import pymssql, json, logging, datetime
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
@@ -91,10 +92,25 @@ class MsSql:
 if __name__ == '__main__':
     # 创建一个数据库对象
     sql = MsSql()
-    user_key_result = sql.exec_search("select * from UserInfor")
-    print("user_key_result", user_key_result)
-    if not user_key_result:
-        print("user_key_result", user_key_result)
-    # 取出所有记录，返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
-    for user_infor in user_key_result:
-        print("UserInfor_ID:{0},UserInfor_Name:{1}".format(str(user_infor[0]), user_infor[2]))
+    match_structure = list()
+    with open('./config/match_comment.json', encoding='utf-8') as match_comment_file:
+        match_comment_json = json.load(match_comment_file)
+        match_structure = match_comment_json['match_structure']
+    DocMatchInfoComment = namedtuple('DocMatchInfoComment', match_structure)
+    str = "select * from DocMatchInfoComment where match_id  in (select DocMatchInfor_ID from DocMatchInfor where Algorithm_Type like '%lsi%') and create_time between '{}' and '{}'".format(
+        str(datetime.datetime.now() - datetime.timedelta(days=10))[0:-3], str(datetime.datetime.now())[0:-3])
+    # str = "select * from DocMatchInfoComment WHERE create_time < '{}'".format(str(datetime.datetime.now())[0:-3])
+    print(str)
+    results = sql.exec_search(str)
+    # "select * from DocMatchInfoComment WHERE create_time < {}".format(str(datetime.datetime.now())[0:-3]))
+    # results = sql.exec_search("select * from DocMatchInfoComment")
+    # data = (4,'require', datetime.datetime.now(),2,'good',82)
+    # results = sql.exec_search("INSERT INTO DocMatchInfoComment VALUES(%d, %s, %s,%d,%s,%d)" % data)
+    print("result{}".format(results))
+    for result in results:
+        print("result{}".format(result))
+        match = DocMatchInfoComment(*result)
+        print("match_id{}".format(match.match_id))
+        # 取出所有记录，返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
+        # for result in results:
+        # print("time:{},UserInfor_Name:{1}".format(str(user_infor[0]), user_infor[2]))

@@ -5,8 +5,12 @@
   "default_database_comment" : "默认使用MongoDB哪个数据库",
   "weight": "weight",
   "weight_comment": "MongoDB中文档权重所在集合",
-  "weight_min": 0.15,
-  "weight_min_comment": "训练数据最终得分小于weight_min时保存到MongoDB的weight集合中",
+  "lsi_weight_min": 0.15,
+  "lsi_weight_min_comment": "lsi训练数据最终得分小于weight_min时保存到MongoDB的weight集合中",
+  "lda_weight_min": 2.5,
+  "lda_weight_min_comment": "lda训练数据最终得分小于weight_min时保存到MongoDB的weight集合中",
+  "individual": "individual",
+  "individual_comment": "MongoDB中个性化算法配置所在集合",
   "genetic": "genetic",
   "genetic_comment": "MongoDB中遗传算法配置所在集合",
   "default_collection": "train",
@@ -16,5 +20,7 @@
   "test": "test",
   "test_comment": "MongoDB中测试数据所在集合",
   "degree": "degree",
-  "degree_comment": "MongoDB中匹配度转换所在集合"
+  "degree_comment": "MongoDB中匹配度转换所在集合",
+  "record": "record",
+  "record_comment": "MongoDB中算法记录所在集合"
 }

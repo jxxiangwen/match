@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 __author__ = 'jxxia'
+from cn.edu.shu.match.build_mongodb import Mongo
+import numpy as np
+import json, sys
 
 """
 匹配算法接口类
@@ -45,8 +48,11 @@ class MatchAlgorithm(object):
             ml_bow = dictionary.doc2bow(resource_text)
             # 放入模型中，计算其他数据与其的相似度
             ml_model = model[ml_bow]  # ml_lsi 形式如 (topic_id, topic_value)
-            sims = index[ml_model]  # sims 是最终结果了， index[xxx] 调用内置方法 __getitem__() 来计算ml_lsi
-
+            try:
+                sims = index[ml_model]  # sims 是最终结果了， index[xxx] 调用内置方法 __getitem__() 来计算ml_lsi
+            except IndexError as e:
+                print("计算匹配度出错")
+                return
             # 排序，为输出方便
             sort_sims = sorted(enumerate(sims), key=lambda item: -item[1])
             for destination_id, score in sort_sims:
@@ -68,13 +74,47 @@ class MatchAlgorithm(object):
         """
         return self._provide_id
 
-    def save_to_database(self, a_result):
+    def get_loss_func(self):
+        """
+        得到损失函数值
+        :return: 损失函数值
+        """
+        collection = None
+        with open('./config/mongodb.json', encoding='utf-8') as mongodb_file:
+            mongodb_json = json.load(mongodb_file)
+            if 'train' == self._train:
+                collection = mongodb_json['train']  # 训练配置文件集合名
+            elif 'test' == self._train:
+                collection = mongodb_json['test']  # 测试配置文件地址
+            else:
+                raise ValueError("非训练或测试没有损失函数")
+        mongo = Mongo()
+        mongo.set_collection(collection)
+        match_degree = None
+        try:
+            match_degree = np.array(mongo.find()['match_degree'])  # 人工设置的匹配度
+        except KeyError as e:
+            print("集合{}文件中不存在{}字段".format(mongo.get_collection(), 'match_degree'))
+            sys.exit()
+        difference = self.get_result() - match_degree  # 匹配度差值矩阵
+        score = 0.0
+        score = np.sum(np.square(difference))  # 损失函数
+        return score
+
+    def save_to_database(self, require_id, provide_id, result, algorithm_type):
         """
         是否将匹配结果存入数据库
-        :param a_result: 要存入的结果
+        :param require_id: 需求id
+        :param provide_id: 服务id
+        :param result: 要存入的结果
+        :param algorithm_type: 算法类型
         :return: 是否成功存入数据库
         """
-        pass
+        if 0 == len(require_id) or 0 == len(provide_id):
+            return
+        for require_index in require_id:
+            for provide_index in provide_id:
+                pass
 
     def compute_match_result(self, first_doc, second_doc):
         """

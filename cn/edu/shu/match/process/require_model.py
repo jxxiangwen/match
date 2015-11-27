@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.process.model import Model
 from cn.edu.shu.match.process.get_text import get_data_from_text
 import sys
@@ -17,7 +18,7 @@ class RequireModel(Model):
     需求模型
     """
 
-    def __init__(self, algorithm_type, read_file=True, match_need=dict()):
+    def __init__(self, algorithm_type, require_id=[], read_file=True, match_need=dict()):
         """
         初始化函数
         :param algorithm_type: 需要训练的算法类型
@@ -26,23 +27,29 @@ class RequireModel(Model):
         :return:
         """
         super().__init__(algorithm_type, read_file, match_need)
-        self._document_id = list()
+        self._document_id = require_id
 
-    def set_text(self, train=True):
+    def set_text(self, train='all'):
         """
         设置训练数据
-        :param train: 为True使用训练数据，否则使用测试数据
-        :return: None
+        :param train: 为'train'使用训练数据，为'test'使用测试数据,'all'使用所有数据
         """
         super().set_text(train)
-        self._mongo.set_collection(self._train_collection)  # 将MongoDB集合设置为训练集
-        try:
-            self._document_id = self._mongo.find()['require_id']
-        except KeyError as e:
-            print("集合{}文件中不存在{}字段".format(self._train_collection, 'require_id'))
-            sys.exit()
-        assert len(self._document_id) > 0, "集合{}文件中不存在{}字段长度为0".format(self._train_collection, 'require_id')
-        # 获取语料库
+        if 'all' != train:
+            try:
+                self._document_id = self._mongo.find()['require_id']
+            except KeyError as e:
+                print("集合{}文件中不存在{}字段".format(self._train_collection, 'require_id'))
+                sys.exit()
+            assert len(self._document_id) > 0, "集合{}文件中不存在{}字段长度为0".format(self._train_collection, 'require_id')
+        else:
+            if 0 == len(self._document_id):
+                ms_sql = MsSql()
+                require_str = "select RequireDocInfor_ID from RequireDocInfor"
+                results = ms_sql.exec_search(require_str)
+                # 得到需求id
+                self._document_id = [result[0] for result in results]
+                # 获取语料库
         self._text = get_data_from_text(self._document_id, self._algorithm_config_path, 'require',
                                         self._algorithm_type, self._read_file, self._match_need)
 

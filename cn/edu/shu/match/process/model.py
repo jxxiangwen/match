@@ -46,16 +46,17 @@ class Model(object):
             self._save_path = path_json['save_path']  # 训练结果保存目录
             self._database_path = path_json['database_path']  # 数据库配置文件地址
 
-    def set_text(self, train=True):
+    def set_text(self, train='all'):
         """
         设置训练数据
-        :param train: 为True使用训练数据，否则使用测试数据
-        :return: None
+        :param train: 为'train'使用训练数据，为'test'使用测试数据,'all'使用所有数据
         """
-        if train:
+        if 'train' == train:
             self._mongo.set_collection(self._train_collection)  # 将MongoDB集合设置为训练集
-        else:
+        elif 'test' == train:
             self._mongo.set_collection(self._test_collection)  # 将MongoDB集合设置为测试集合
+        else:
+            pass
 
     def get_text(self):
         """
@@ -96,9 +97,8 @@ class Model(object):
                 self._model = models.LdaModel(corpus_tfidf, id2word=self._dictionary, num_topics=num_topics)
             else:
                 raise TypeError("模型类型{}不存在".format(model_type))
-
-            self._index = similarities.MatrixSimilarity(
-                self._model[self._corpus])  # index 是 gensim.similarities.docsim.MatrixSimilarity 实例
+            # index 是 gensim.similarities.docsim.MatrixSimilarity 实例
+            self._index = similarities.MatrixSimilarity(self._model[self._corpus])
             #  logging.info("index: %s" % index)
 
             # 保存训练结果
@@ -118,8 +118,8 @@ class Model(object):
                 self._model = models.LdaModel.load('{}/{}.{}'.format(self._save_path, doc_type, model_type))
             else:
                 raise TypeError("模型类型{}不存在".format(model_type))
-        # end = time.clock()
-        # print("模型构建运行了: %f 秒" % (end - start))
+                # end = time.clock()
+                # print("模型构建运行了: %f 秒" % (end - start))
 
     def get_model(self):
         """
