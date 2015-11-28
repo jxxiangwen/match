@@ -129,7 +129,7 @@ class MatchAlgorithm(object):
     @staticmethod
     def save(require_id, provide_id, result, algorithm_type):
         """
-        是否将匹配结果存入数据库
+        将匹配结果存入数据库
         :param require_id: 需求id
         :param provide_id: 服务id
         :param result: 要存入的结果
@@ -138,33 +138,40 @@ class MatchAlgorithm(object):
         """
         search_str = "select * from {} WHERE {}={} AND {}={}".format(match_table_name, require_id_name, require_id,
                                                                      provide_id_name, provide_id)
-        result = sql.exec_search(search_str)
-        if 0 == len(result):
+        results = sql.exec_search(search_str)
+        if 0 == len(results):
+            print("INSERT INTO %s VALUES ('%s', '%s', '%s', '0', '%s', '0', '0',%s)" % (
+                match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
+                strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
             # 保存记录UPDATE Person SET FirstName = 'Fred' WHERE LastName = 'Wilson'
-            sql.exec_non_search("INSERT INTO %s VALUES ('%s', '%s', '%s', '0', '%s', '0', '0',%s)" % (
+            sql.exec_non_search("INSERT INTO %s VALUES ('%s', '%s', '%s', '0', '%s', '0', '0','%s')" % (
                 match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
                 strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
         else:
             # 更新记录
-            sql.exec_non_search("UPDATE %s SET %s = %d WHERE %s = %d AND %s = %d" % (
+            sql.exec_non_search("UPDATE %s SET %s = %s WHERE %s = %d AND %s = %d" % (
                 match_table_name, degree_name, MatchAlgorithm.degree_transform(result), require_id_name, require_id,
                 provide_id_name, provide_id))
 
     @staticmethod
-    def save_to_database(require_id_list, provide_id_list, result_matrix, algorithm_type):
+    def save_to_database(require_ids, provide_ids, algorithm_type, min_threshold, *results):
         """
-        是否将匹配结果存入数据库
-        :param require_id_list: 需求id
-        :param provide_id_list: 服务id
-        :param result_matrix: 要存入的结果矩阵
+        将匹配结果存入数据库
+        :param require_ids: 需求id
+        :param provide_ids: 服务id
         :param algorithm_type: 算法类型
+        :param min_threshold: 阈值
+        :param results: 要存入的结果矩阵
         :return: 是否成功存入数据库
         """
-        if 0 == len(require_id_list) or 0 == len(provide_id_list):
+        if 0 == len(require_ids) or 0 == len(provide_ids):
             return
-        for require_index in require_id_list:
-            for provide_index in provide_id_list:
-                pass
+        for require_index, require_id in enumerate(require_ids):
+            for provide_index, provide_id in enumerate(provide_ids):
+                similarity = min([result[require_index][provide_index] for result in results])
+                # 大于阈值存入数据库
+                if similarity > min_threshold:
+                    MatchAlgorithm.save(require_id, provide_id, similarity, algorithm_type)
 
     def compute_match_result(self, first_doc, second_doc):
         """
@@ -177,4 +184,4 @@ class MatchAlgorithm(object):
 
 
 if __name__ == '__main__':
-    MatchAlgorithm.save(5, 5, 3, 4)
+    MatchAlgorithm.save(6, 5, 0.98, 'lsi')

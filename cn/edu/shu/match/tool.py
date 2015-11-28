@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import numpy as np
 import datetime, json
 
 __author__ = 'jxxia'
@@ -91,25 +92,28 @@ def change_algorithm_json(file_path, **kw):
     """
     require_weight = dict_to_str(kw['require_conclude'], kw['require_weight'])
     provide_weight = dict_to_str(kw['provide_conclude'], kw['provide_weight'])
-    a_dict = dict()
-    a_dict['{}_require_weight'.format(kw['algorithm_type'])] = require_weight
-    a_dict['{}_provide_weight'.format(kw['algorithm_type'])] = provide_weight
-    change_json_file(file_path, **a_dict)
+    temp_dict = dict()
+    temp_dict['{}_require_weight'.format(kw['algorithm_type'])] = require_weight
+    temp_dict['{}_provide_weight'.format(kw['algorithm_type'])] = provide_weight
+    change_json_file(file_path, **temp_dict)
 
 
-def result_merge(require_id, provide_id, *result):
+def result_merge(require_ids, provide_ids, *results):
     """
     合并运算结果
-    :param require_id: 需求id
-    :param provide_id: 服务id
-    :param result: 运算结果
+    :param require_ids: 需求id
+    :param provide_ids: 服务id
+    :param results: 运算结果
     :return:
     """
-    if 0 == len(require_id) or 0 == len(provide_id):
+    result_matrix = np.zeros((len(require_ids), len(provide_ids)))
+    if 0 == len(require_ids) or 0 == len(provide_ids):
         return
-    for require_index in require_id:
-        for provide_index in provide_id:
-            pass
+    for require_index, require_id in enumerate(require_ids):
+        for provide_index, provide_id in enumerate(provide_ids):
+            result_matrix[require_index][provide_index] = min([result[require_index][provide_index] for result in results])
+
+    print(result_matrix)
 
 
 if __name__ == '__main__':
