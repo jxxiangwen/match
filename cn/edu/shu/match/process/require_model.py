@@ -47,6 +47,8 @@ class RequireModel(Model):
                 ms_sql = MsSql()
                 require_str = "select RequireDocInfor_ID from RequireDocInfor"
                 results = ms_sql.exec_search(require_str)
+                if 0 == len(results):
+                    return
                 # 得到需求id
                 self._document_id = [result[0] for result in results]
                 # 获取语料库

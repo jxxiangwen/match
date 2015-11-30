@@ -18,7 +18,7 @@ class ProvideModel(Model):
     服务模型
     """
 
-    def __init__(self, algorithm_type, provide_id=[],read_file=True, match_need=dict()):
+    def __init__(self, algorithm_type, provide_id=[], read_file=True, match_need=dict()):
         """
         初始化函数
         :param algorithm_type: 需要训练的算法类型
@@ -48,6 +48,8 @@ class ProvideModel(Model):
                 ms_sql = MsSql()
                 provide_str = "select ProvideDocInfor_ID from ProvideDocInfor"
                 results = ms_sql.exec_search(provide_str)
+                if 0 == len(results):
+                    return
                 # 得到需求id
                 self._document_id = [result[0] for result in results]
                 # 获取语料库

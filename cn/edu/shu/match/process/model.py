@@ -76,7 +76,8 @@ class Model(object):
         """
         from gensim import corpora, models, similarities
         # import time
-
+        if isinstance(self._text, type(None)):
+            return
         # start = time.clock()
         if re_train:
             # print("正在重新训练模型")

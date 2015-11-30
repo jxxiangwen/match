@@ -56,6 +56,8 @@ class MatchAlgorithm(object):
         :param num_topics: 模型的主题数目
         :return: 返回匹配结果
         """
+        if isinstance(self._require_text, type(None)):
+            return
         for resource_id, resource_text in enumerate(self._require_text):
             (index, dictionary, model) = self._provide_model.get_model()
             # 词袋处理
