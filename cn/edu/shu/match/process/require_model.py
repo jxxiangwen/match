@@ -45,7 +45,7 @@ class RequireModel(Model):
         else:
             if 0 == len(self._document_id):
                 ms_sql = MsSql()
-                require_str = "select RequireDocInfor_ID from RequireDocInfor"
+                require_str = "select RequireDocInfor_ID from RequireDocInfor where RequireDocInfor_status not in (0)"
                 results = ms_sql.exec_search(require_str)
                 if 0 == len(results):
                     return

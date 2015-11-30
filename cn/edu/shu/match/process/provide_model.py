@@ -46,7 +46,7 @@ class ProvideModel(Model):
         else:
             if 0 == len(self._document_id):
                 ms_sql = MsSql()
-                provide_str = "select ProvideDocInfor_ID from ProvideDocInfor"
+                provide_str = "select ProvideDocInfor_ID from ProvideDocInfor where ProvideDocInfor_status not in (0)"
                 results = ms_sql.exec_search(provide_str)
                 if 0 == len(results):
                     return
