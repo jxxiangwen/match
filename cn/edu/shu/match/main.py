@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import sys, os
+
+module_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir, os.pardir, os.pardir))
+sys.path.append(module_path)
+
 from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.match_algorithm_factory import MatchAlgorithmFactory
 from cn.edu.shu.match.match_algorithm import MatchAlgorithm
@@ -55,7 +60,8 @@ if __name__ == '__main__':
                     # lsi算法
                     match_algorithm = match_algorithm_factory.create_match_algorithm('lsi', 'all', require_ids,
                                                                                      provide_ids)
-                    lsi_result = match_algorithm.get_result(True)
+                    while isinstance(lsi_result, type(None)):
+                        lsi_result = match_algorithm.get_result(True)
                     bool_result = lsi_result > lsi_threshold
                     # 获得更好权重
                     lsi_get_comment.do_better()
@@ -65,25 +71,27 @@ if __name__ == '__main__':
                     # lda算法
                     match_algorithm = match_algorithm_factory.create_match_algorithm('lda', 'all', require_ids,
                                                                                      provide_ids)
-                    lda_result = match_algorithm.get_result(True)
+                    while isinstance(lda_result, type(None)):
+                        lda_result = match_algorithm.get_result(True)
                     bool_result &= lda_result > lda_threshold
                     lda_get_comment.do_better()
                     # print('lda运算结果{}'.format(lda_result))
-                # if algorithm_json['cos']:
-                #     algorithm_type_list.append('cos')
-                #     # cos算法
-                #     match_algorithm = match_algorithm_factory.create_match_algorithm('cos', 'all', require_ids,
-                #                                                                      provide_ids)
-                #     cos_result = match_algorithm.get_result(True)
-                #     # bool_result &= cos_result > cos_threshold
-                #     cos_get_comment.do_better()
+                    # if algorithm_json['cos']:
+                    #     algorithm_type_list.append('cos')
+                    #     # cos算法
+                    #     match_algorithm = match_algorithm_factory.create_match_algorithm('cos', 'all', require_ids,
+                    #                                                                      provide_ids)
+                    #     cos_result = match_algorithm.get_result(True)
+                    #     # bool_result &= cos_result > cos_threshold
+                    #     cos_get_comment.do_better()
             else:
                 raise ValueError("至少需要选择一个算法")
         algorithm_type = ','.join(algorithm_type_list)
         lsi_result = ones_matrix if isinstance(lsi_result, type(None)) else lsi_result
         lda_result = ones_matrix if isinstance(lda_result, type(None)) else lda_result
         cos_result = ones_matrix if isinstance(cos_result, type(None)) else cos_result
-        MatchAlgorithm.save_to_database(require_ids,provide_ids,algorithm_type,min_threshold,*(lsi_result, lda_result, cos_result))
+        MatchAlgorithm.save_to_database(require_ids, provide_ids, algorithm_type, min_threshold,
+                                        *(lsi_result, lda_result, cos_result))
         end = time.clock()
         print("程序运行了: %f 秒" % (end - start))
         time.sleep(3600 * 24)
