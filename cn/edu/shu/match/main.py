@@ -31,9 +31,9 @@ if __name__ == '__main__':
     # cos算法获得更好权重
     cos_get_comment = GetComment('cos')
     cos_get_comment.init_record()
-    algorithm_type_list = list()
-    algorithm_type = str()
     while True:
+        algorithm_type_list = list()
+        algorithm_type = str()
         start = time.clock()
         ms_sql = MsSql()
         require_str = "select RequireDocInfor_ID from RequireDocInfor"
