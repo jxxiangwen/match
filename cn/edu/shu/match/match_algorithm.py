@@ -23,6 +23,7 @@ with open('./config/match_table.json', encoding='utf-8') as table_file:
     require_id_name = table_json['match_require_id']
     provide_id_name = table_json['match_provide_id']
     degree_name = table_json['match_degree']
+    match_algorithm_type = table_json['match_algorithm_type']
 
 
 class MatchAlgorithm(object):
@@ -150,13 +151,13 @@ class MatchAlgorithm(object):
                 match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
                 strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
         else:
-            print("UPDATE %s SET %s = %s WHERE %s = %d AND %s = %d" % (
-                match_table_name, degree_name, MatchAlgorithm.degree_transform(result), require_id_name, require_id,
-                provide_id_name, provide_id))
+            print("UPDATE %s SET %s = %s,%s = '%s' WHERE %s = %d AND %s = %d" % (
+                match_table_name, degree_name, MatchAlgorithm.degree_transform(result), match_algorithm_type,
+                algorithm_type, require_id_name, require_id, provide_id_name, provide_id))
             # 更新记录
-            sql.exec_non_search("UPDATE %s SET %s = %s WHERE %s = %d AND %s = %d" % (
-                match_table_name, degree_name, MatchAlgorithm.degree_transform(result), require_id_name, require_id,
-                provide_id_name, provide_id))
+            sql.exec_non_search("UPDATE %s SET %s = %s,%s = '%s' WHERE %s = %d AND %s = %d" % (
+                match_table_name, degree_name, MatchAlgorithm.degree_transform(result), match_algorithm_type,
+                algorithm_type, require_id_name, require_id, provide_id_name, provide_id))
 
     @staticmethod
     def save_to_database(require_ids, provide_ids, algorithm_type, min_threshold, *results):

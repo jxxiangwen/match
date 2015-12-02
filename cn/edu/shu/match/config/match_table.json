@@ -35,6 +35,7 @@
   "match_pro_read": "DocMatchInfor_ProRead",
   "match_pro_read_index": 7,
   "match_pro_read_comment": "匹配表服务读取状态索引名称",
+  "match_algorithm_type": "Algorithm_type",
   "match_algorithm_type_index": 8,
   "match_algorithm_type_comment": "匹配表算法类型索引名称"
 }
