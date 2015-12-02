@@ -1,7 +1,35 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from cn.edu.shu.match.tool import change_json_file
+import sys, os, json
+
+module_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir, os.pardir, os.pardir))
+sys.path.append(module_path)
+os.chdir(sys.path[0])
+
+__author__ = 'jxxia'
+
+
+def change_json_file(file_path, **kw):
+    """
+    改变json文件内容
+    :param file_path: 文件地址
+    :param kw: 关键字参数
+    :return:
+    """
+    if len(kw) == 0:
+        return
+    try:
+        with open(file_path, encoding='utf-8', mode='r+') as read_file:
+            read_json = json.load(read_file)
+        for key, value in kw.items():
+            read_json[key] = value
+        data = json.dumps(read_json, ensure_ascii=False, indent=4, sort_keys=True)
+        with open(file_path, encoding='utf-8', mode='w') as write_file:
+            write_file.write(data)
+    except FileNotFoundError as e:
+        raise FileNotFoundError("文件{}不存在".format(file_path))
+
 
 __author__ = 'jxxia'
 
