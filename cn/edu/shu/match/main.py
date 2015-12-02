@@ -98,4 +98,5 @@ if __name__ == '__main__':
         end = time.clock()
         print("程序运行了: %f 秒" % (end - start))
         sleep_time = 3600 * 24 - int(end - start)
-        time.sleep(sleep_time)
+        if sleep_time > 0:
+            time.sleep(sleep_time)
