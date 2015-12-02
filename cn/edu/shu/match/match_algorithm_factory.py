@@ -36,9 +36,15 @@ class MatchAlgorithmFactory(object):
         :param match_need: 如果read_file为False，此处必填
         :return: 创建的算法对象，如果不存在则抛出TypeError异常
         """
-        self.algorithm['lsi'] = LsiMatchAlgorithm(train, require_id, provide_id, read_file, match_need)
-        self.algorithm['lda'] = LdaMatchAlgorithm(train, require_id, provide_id, read_file, match_need)
-        self.algorithm['cos'] = CosMatchAlgorithm(train, require_id, provide_id, read_file, match_need)
+        # self.algorithm['lsi'] = LsiMatchAlgorithm(train, require_id, provide_id, read_file, match_need)
+        # self.algorithm['lda'] = LdaMatchAlgorithm(train, require_id, provide_id, read_file, match_need)
+        # self.algorithm['cos'] = CosMatchAlgorithm(train, require_id, provide_id, read_file, match_need)
         if algorithm_name in self.algorithm_type:
-            return self.algorithm[algorithm_name]
+            if 'lsi' == algorithm_name:
+                return LsiMatchAlgorithm(train, require_id, provide_id, read_file, match_need)
+            elif 'lda' == algorithm_name:
+                return LdaMatchAlgorithm(train, require_id, provide_id, read_file, match_need)
+            else:
+                return CosMatchAlgorithm(train, require_id, provide_id, read_file, match_need)
+                # return self.algorithm[algorithm_name]
         raise TypeError("不存在{}算法".format(algorithm_name))

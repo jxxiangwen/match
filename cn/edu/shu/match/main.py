@@ -76,14 +76,14 @@ if __name__ == '__main__':
                     bool_result &= lda_result > lda_threshold
                     lda_get_comment.do_better()
                     # print('lda运算结果{}'.format(lda_result))
-                    # if algorithm_json['cos']:
-                    #     algorithm_type_list.append('cos')
-                    #     # cos算法
-                    #     match_algorithm = match_algorithm_factory.create_match_algorithm('cos', 'all', require_ids,
-                    #                                                                      provide_ids)
-                    #     cos_result = match_algorithm.get_result(True)
-                    #     # bool_result &= cos_result > cos_threshold
-                    #     cos_get_comment.do_better()
+                # if algorithm_json['cos']:
+                #     algorithm_type_list.append('cos')
+                #     # cos算法
+                #     match_algorithm = match_algorithm_factory.create_match_algorithm('cos', 'all', require_ids,
+                #                                                                      provide_ids)
+                #     cos_result = match_algorithm.get_result(True)
+                #     # bool_result &= cos_result > cos_threshold
+                #     cos_get_comment.do_better()
             else:
                 raise ValueError("至少需要选择一个算法")
         algorithm_type = ','.join(algorithm_type_list)

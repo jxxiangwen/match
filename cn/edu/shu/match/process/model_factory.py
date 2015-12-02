@@ -34,8 +34,12 @@ class ModelFactory(object):
         :param match_need: 如果read_file为False，此处必填
         :return: 创建的算法对象，如果不存在则抛出TypeError异常
         """
-        self._model['require'] = RequireModel(algorithm_type, document_id, read_file, match_need)
-        self._model['provide'] = ProvideModel(algorithm_type, document_id, read_file, match_need)
+        # self._model['require'] = RequireModel(algorithm_type, document_id, read_file, match_need)
+        # self._model['provide'] = ProvideModel(algorithm_type, document_id, read_file, match_need)
         if model_name in self._model_type:
-            return self._model[model_name]
+            if 'require' == model_name:
+                return RequireModel(algorithm_type, document_id, read_file, match_need)
+            else:
+                return ProvideModel(algorithm_type, document_id, read_file, match_need)
+            # return self._model[model_name]
         raise TypeError("不存在{}模型".format(model_name))

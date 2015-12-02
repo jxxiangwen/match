@@ -5,7 +5,7 @@ from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.process.preprocess import pre_process_cn
 from cn.edu.shu.match.tool import str_list_to_dict
 from time import strftime, localtime
-import logging,json
+import logging, json
 
 __author__ = 'jxxia'
 
@@ -28,18 +28,17 @@ def get_data_from_text(doc_id, algorithm_config, doc_type, algorithm_type, read_
     :param match_need：匹配所需信息
     :return: 预处理后数据
     """
-    data, data_index, weight_dict = product_conclude_weight(algorithm_config, doc_type, algorithm_type, read_file,
-                                                            match_need)
+    data, data_index, weight_dict = product_conclude_weight(doc_id, algorithm_config, doc_type, algorithm_type,
+                                                            read_file, match_need)
     return_data = list()  # 返回数据
-
-    remove_list = list()
-    # 查找不在文档id中的数据
-    for document in data:
-        if document[0] not in doc_id:
-            remove_list.append(document)
-    # 去掉不在文档id中的数据
-    for document in remove_list:
-        data.remove(document)
+    # remove_list = list()
+    # # 查找不在文档id中的数据
+    # for document in data:
+    #     if document[0] not in doc_id:
+    #         remove_list.append(document)
+    # # 去掉不在文档id中的数据
+    # for document in remove_list:
+    #     data.remove(document)
     for document in data:
         text = str()
         # 提取文档匹配所需信息
@@ -93,9 +92,10 @@ def get_one_from_text(doc_id, algorithm_config, doc_type, algorithm_type, read_f
         yield pre_process_cn(list(text))
 
 
-def product_conclude_weight(algorithm_config_path, doc_type, algorithm_type, read_file=True, match_need=dict()):
+def product_conclude_weight(doc_id, algorithm_config_path, doc_type, algorithm_type, read_file=True, match_need=dict()):
     """
     产生获取数据函数所需的索引和权重
+    :param doc_id: 文档id
     :param algorithm_config_path: 算法配置文件地址
     :param doc_type: 取出数据的类型
     :param algorithm_type: 匹配时所用算法类型
@@ -115,7 +115,14 @@ def product_conclude_weight(algorithm_config_path, doc_type, algorithm_type, rea
             algorithm_json = json.load(algorithm_file)
             if not ('require' == doc_type or 'provide' == doc_type):
                 raise ValueError("类型{}不存在!".format(doc_type))
-            data = sql.exec_search('select * from {}'.format(table_json[doc_type]))
+            if 'require' == doc_type:
+                data = sql.exec_search(
+                    'select * from {} WHERE {} IN {}'.format(table_json[doc_type], table_json['require_id'],
+                                                             tuple(doc_id)))
+            else:
+                data = sql.exec_search(
+                    'select * from {} WHERE {} IN {}'.format(table_json[doc_type], table_json['provide_id'],
+                                                             tuple(doc_id)))
             if read_file:
                 # 获得需求表匹配时字段索引
                 conclude = algorithm_json['{}_{}_conclude'.format(algorithm_type, doc_type)].strip().split(',')

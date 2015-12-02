@@ -150,6 +150,9 @@ class MatchAlgorithm(object):
                 match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
                 strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
         else:
+            print("UPDATE %s SET %s = %s WHERE %s = %d AND %s = %d" % (
+                match_table_name, degree_name, MatchAlgorithm.degree_transform(result), require_id_name, require_id,
+                provide_id_name, provide_id))
             # 更新记录
             sql.exec_non_search("UPDATE %s SET %s = %s WHERE %s = %d AND %s = %d" % (
                 match_table_name, degree_name, MatchAlgorithm.degree_transform(result), require_id_name, require_id,

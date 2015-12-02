@@ -58,5 +58,5 @@ class LsiMatchAlgorithm(MatchAlgorithm):
 
 
 if __name__ == '__main__':
-    match_algorithm = LsiMatchAlgorithm('all')
+    match_algorithm = LsiMatchAlgorithm('train')
     print(type(match_algorithm.get_result()))
