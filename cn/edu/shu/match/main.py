@@ -6,6 +6,7 @@ import sys, os
 module_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir, os.pardir, os.pardir))
 sys.path.append(module_path)
 
+from cn.edu.shu.match.change_doc_status import change_require_status, change_provide_status
 from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.match_algorithm_factory import MatchAlgorithmFactory
 from cn.edu.shu.match.match_algorithm import MatchAlgorithm
@@ -32,6 +33,8 @@ if __name__ == '__main__':
     cos_get_comment = GetComment('cos')
     cos_get_comment.init_record()
     while True:
+        change_require_status()  # 更新需求状态
+        change_provide_status()  # 更新服务状态
         algorithm_type_list = list()
         algorithm_type = str()
         start = time.clock()
@@ -76,14 +79,14 @@ if __name__ == '__main__':
                     bool_result &= lda_result > lda_threshold
                     lda_get_comment.do_better()
                     # print('lda运算结果{}'.format(lda_result))
-                # if algorithm_json['cos']:
-                #     algorithm_type_list.append('cos')
-                #     # cos算法
-                #     match_algorithm = match_algorithm_factory.create_match_algorithm('cos', 'all', require_ids,
-                #                                                                      provide_ids)
-                #     cos_result = match_algorithm.get_result(True)
-                #     # bool_result &= cos_result > cos_threshold
-                #     cos_get_comment.do_better()
+                    # if algorithm_json['cos']:
+                    #     algorithm_type_list.append('cos')
+                    #     # cos算法
+                    #     match_algorithm = match_algorithm_factory.create_match_algorithm('cos', 'all', require_ids,
+                    #                                                                      provide_ids)
+                    #     cos_result = match_algorithm.get_result(True)
+                    #     # bool_result &= cos_result > cos_threshold
+                    #     cos_get_comment.do_better()
             else:
                 raise ValueError("至少需要选择一个算法")
         algorithm_type = ','.join(algorithm_type_list)
@@ -94,4 +97,5 @@ if __name__ == '__main__':
                                         *(lsi_result, lda_result, cos_result))
         end = time.clock()
         print("程序运行了: %f 秒" % (end - start))
-        time.sleep(3600 * 24)
+        sleep_time = 3600 * 24 - int(end - start)
+        time.sleep(sleep_time)

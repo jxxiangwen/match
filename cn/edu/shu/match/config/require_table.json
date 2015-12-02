@@ -1,0 +1,13 @@
+{
+  "default": true,
+  "require": "RequireDocInfor",
+  "require_comment": "需求表表名",
+  "require_id": "RequireDocInfor_ID",
+  "require_id_comment": "需求表id字段名称",
+  "require_start_time": "RequireDocInfor_StDeadLine",
+  "require_start_time_comment": "需求开始时间",
+  "require_finish_time": "RequireDocInfor_FhDeadLine",
+  "require_finish_time_comment": "需求结束时间",
+  "require_status": "RequireDocInfor_status",
+  "require_status_comment": "需求状态"
+}
