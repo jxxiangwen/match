@@ -27,7 +27,7 @@ def change_require_status():
     with open('./config/require_table.json', encoding='utf-8') as require_table_file:
         require_table_json = json.load(require_table_file)
         results = ms_sql.exec_search(
-            "select {},{},{},{} from {} where {} < getdate()".format(require_table_json['require_id'],
+            "SELECT {},{},{},{} FROM {} WHERE {} < getdate()".format(require_table_json['require_id'],
                                                                      require_table_json['require_start_time'],
                                                                      require_table_json['require_finish_time'],
                                                                      require_table_json['require_status'],
@@ -40,13 +40,13 @@ def change_require_status():
                 if get_date(result[2]) < datetime.datetime.now():
                     status = 3
                 if status != result[3]:
-                    print("UPDATE {} SET {} = {}WHERE {} = {}".format(require_table_json['require'],
+                    print("UPDATE {} SET {} = {} WHERE {} = {}".format(require_table_json['require'],
                                                                       require_table_json['require_status'],
                                                                       status,
                                                                       require_table_json['require_id'],
                                                                       result[0]))
                     ms_sql.exec_non_search(
-                        "UPDATE {} SET {} = {}WHERE {} = {}".format(require_table_json['require'],
+                        "UPDATE {} SET {} = {} WHERE {} = {}".format(require_table_json['require'],
                                                                     require_table_json['require_status'],
                                                                     status,
                                                                     require_table_json['require_id'],
@@ -61,7 +61,7 @@ def change_provide_status():
     with open('./config/provide_table.json', encoding='utf-8') as provide_table_file:
         provide_table_json = json.load(provide_table_file)
         results = ms_sql.exec_search(
-            "select {},{},{} from {} where {} < getdate()".format(provide_table_json['provide_id'],
+            "SELECT {},{},{} FROM {} WHERE {} < getdate()".format(provide_table_json['provide_id'],
                                                                   provide_table_json['provide_start_time'],
                                                                   provide_table_json['provide_status'],
                                                                   provide_table_json['provide'],
@@ -71,13 +71,13 @@ def change_provide_status():
             if get_date(result[1]) < datetime.datetime.now():
                 status = 2
                 if status != result[2]:
-                    print("UPDATE {} SET {} = {}WHERE {} = {}".format(provide_table_json['provide'],
+                    print("UPDATE {} SET {} = {} WHERE {} = {}".format(provide_table_json['provide'],
                                                                       provide_table_json['provide_status'],
                                                                       status,
                                                                       provide_table_json['provide_id'],
                                                                       result[0]))
                     ms_sql.exec_non_search(
-                        "UPDATE {} SET {} = {}WHERE {} = {}".format(provide_table_json['provide'],
+                        "UPDATE {} SET {} = {} WHERE {} = {}".format(provide_table_json['provide'],
                                                                     provide_table_json['provide_status'],
                                                                     status,
                                                                     provide_table_json['provide_id'],
