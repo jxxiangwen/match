@@ -39,18 +39,18 @@ def change_require_status():
                 status = 2
                 if get_date(result[2]) < datetime.datetime.now():
                     status = 3
-                if status != result[3]:
+                if status > result[3] and status != 0:
                     print("UPDATE {} SET {} = {} WHERE {} = {}".format(require_table_json['require'],
-                                                                      require_table_json['require_status'],
-                                                                      status,
-                                                                      require_table_json['require_id'],
-                                                                      result[0]))
+                                                                       require_table_json['require_status'],
+                                                                       status,
+                                                                       require_table_json['require_id'],
+                                                                       result[0]))
                     ms_sql.exec_non_search(
                         "UPDATE {} SET {} = {} WHERE {} = {}".format(require_table_json['require'],
-                                                                    require_table_json['require_status'],
-                                                                    status,
-                                                                    require_table_json['require_id'],
-                                                                    result[0]))
+                                                                     require_table_json['require_status'],
+                                                                     status,
+                                                                     require_table_json['require_id'],
+                                                                     result[0]))
 
 
 def change_provide_status():
@@ -70,18 +70,18 @@ def change_provide_status():
         for result in results:
             if get_date(result[1]) < datetime.datetime.now():
                 status = 2
-                if status != result[2]:
+                if status > result[2] and status != 0:
                     print("UPDATE {} SET {} = {} WHERE {} = {}".format(provide_table_json['provide'],
-                                                                      provide_table_json['provide_status'],
-                                                                      status,
-                                                                      provide_table_json['provide_id'],
-                                                                      result[0]))
+                                                                       provide_table_json['provide_status'],
+                                                                       status,
+                                                                       provide_table_json['provide_id'],
+                                                                       result[0]))
                     ms_sql.exec_non_search(
                         "UPDATE {} SET {} = {} WHERE {} = {}".format(provide_table_json['provide'],
-                                                                    provide_table_json['provide_status'],
-                                                                    status,
-                                                                    provide_table_json['provide_id'],
-                                                                    result[0]))
+                                                                     provide_table_json['provide_status'],
+                                                                     status,
+                                                                     provide_table_json['provide_id'],
+                                                                     result[0]))
 
 
 if __name__ == '__main__':
