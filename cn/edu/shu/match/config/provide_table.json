@@ -4,6 +4,8 @@
   "provide_comment": "服务表表名",
   "provide_id": "ProvideDocInfor_ID",
   "provide_id_comment": "服务表id字段名称",
+  "provide_user_id": "ProvideDocInfor_UserID",
+  "provide_user_id_comment": "服务表用户id字段名称",
   "provide_start_time": "ProvideDocInfor_StTime",
   "provide_start_time_comment": "服务开始时间",
   "provide_status": "ProvideDocInfor_Status",

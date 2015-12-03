@@ -20,10 +20,20 @@ provide_id_name = None
 with open('./config/match_table.json', encoding='utf-8') as table_file:
     table_json = json.load(table_file)
     match_table_name = table_json['match']
-    require_id_name = table_json['match_require_id']
-    provide_id_name = table_json['match_provide_id']
+    match_require_id_name = table_json['match_require_id']
+    match_provide_id_name = table_json['match_provide_id']
     degree_name = table_json['match_degree']
     match_algorithm_type = table_json['match_algorithm_type']
+with open('./config/require_table.json', encoding='utf-8') as table_file:
+    table_json = json.load(table_file)
+    require_table_name = table_json['require']
+    require_id_name = table_json['require_id']
+    require_user_id_name = table_json['require_user_id']
+with open('./config/provide_table.json', encoding='utf-8') as table_file:
+    table_json = json.load(table_file)
+    provide_table_name = table_json['provide']
+    provide_id_name = table_json['provide_id']
+    provide_user_id_name = table_json['provide_user_id']
 
 
 class MatchAlgorithm(object):
@@ -139,25 +149,34 @@ class MatchAlgorithm(object):
         :param algorithm_type: 算法类型
         :return: 是否成功存入数据库
         """
-        search_str = "select * from {} WHERE {}={} AND {}={}".format(match_table_name, require_id_name, require_id,
-                                                                     provide_id_name, provide_id)
+        search_str = "select * from {} WHERE {}={} AND {}={}".format(match_table_name, match_require_id_name,
+                                                                     require_id,
+                                                                     match_provide_id_name, provide_id)
+
         results = sql.exec_search(search_str)
         if 0 == len(results):
-            print("INSERT INTO %s VALUES ('%s', '%s', '%s', '0', '%s', '0', '0',%s)" % (
-                match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
-                strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
-            # 保存记录UPDATE Person SET FirstName = 'Fred' WHERE LastName = 'Wilson'
-            sql.exec_non_search("INSERT INTO %s VALUES ('%s', '%s', '%s', '0', '%s', '0', '0','%s')" % (
-                match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
-                strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
+            require_result = sql.exec_search(
+                "select {} from {} where {} = {}".format(require_user_id_name, require_table_name, require_id_name,
+                                                         require_id))
+            provide_result = sql.exec_search(
+                "select {} from {} where {} = {}".format(provide_user_id_name, provide_table_name, provide_id_name,
+                                                         provide_id))
+            if require_result[0] != provide_result[0]:
+                print("INSERT INTO %s VALUES ('%s', '%s', '%s', '0', '%s', '0', '0',%s)" % (
+                    match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
+                    strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
+                # 保存记录UPDATE Person SET FirstName = 'Fred' WHERE LastName = 'Wilson'
+                sql.exec_non_search("INSERT INTO %s VALUES ('%s', '%s', '%s', '0', '%s', '0', '0','%s')" % (
+                    match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
+                    strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
         else:
             print("UPDATE %s SET %s = %s,%s = '%s' WHERE %s = %d AND %s = %d" % (
                 match_table_name, degree_name, MatchAlgorithm.degree_transform(result), match_algorithm_type,
-                algorithm_type, require_id_name, require_id, provide_id_name, provide_id))
+                algorithm_type, match_require_id_name, require_id, match_provide_id_name, provide_id))
             # 更新记录
             sql.exec_non_search("UPDATE %s SET %s = %s,%s = '%s' WHERE %s = %d AND %s = %d" % (
                 match_table_name, degree_name, MatchAlgorithm.degree_transform(result), match_algorithm_type,
-                algorithm_type, require_id_name, require_id, provide_id_name, provide_id))
+                algorithm_type, match_require_id_name, require_id, match_provide_id_name, provide_id))
 
     @staticmethod
     def save_to_database(require_ids, provide_ids, algorithm_type, min_threshold, *results):

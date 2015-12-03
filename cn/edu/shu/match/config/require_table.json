@@ -4,6 +4,8 @@
   "require_comment": "需求表表名",
   "require_id": "RequireDocInfor_ID",
   "require_id_comment": "需求表id字段名称",
+  "require_user_id": "RequireDocInfor_UserID",
+  "require_user_id_comment": "需求表用户id字段名称",
   "require_start_time": "RequireDocInfor_StDeadLine",
   "require_start_time_comment": "需求开始时间",
   "require_finish_time": "RequireDocInfor_FhDeadLine",
