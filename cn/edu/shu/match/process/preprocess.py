@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO,
                     filemode='a')
 
 
-def pre_process_cn(courses, low_freq_filter=False):
+def pre_process_cn(courses, low_freq_filter=True):
     """
     预处理(easy_install nltk)
     简化的 中文+英文 预处理
