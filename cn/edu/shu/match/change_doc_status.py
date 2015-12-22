@@ -74,7 +74,7 @@ def change_provide_status():
         status = 0
         for result in results:
             # 暂存文档不修改状态
-            if result[3] > 4:
+            if result[2] > 4:
                 continue
             # 文档是否开始，2为已开始
             if get_date(result[1]) < datetime.datetime.now():
