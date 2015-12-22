@@ -117,12 +117,12 @@ def product_conclude_weight(doc_id, algorithm_config_path, doc_type, algorithm_t
                 raise ValueError("类型{}不存在!".format(doc_type))
             if 'require' == doc_type:
                 data = sql.exec_search(
-                    'select * from {} WHERE {} IN {}'.format(table_json[doc_type], table_json['require_id'],
-                                                             tuple(doc_id)))
+                        'select * from {} WHERE {} IN {}'.format(table_json[doc_type], table_json['require_id'],
+                                                                 tuple(doc_id)))
             else:
                 data = sql.exec_search(
-                    'select * from {} WHERE {} IN {}'.format(table_json[doc_type], table_json['provide_id'],
-                                                             tuple(doc_id)))
+                        'select * from {} WHERE {} IN {}'.format(table_json[doc_type], table_json['provide_id'],
+                                                                 tuple(doc_id)))
             if read_file:
                 # 获得需求表匹配时字段索引
                 conclude = algorithm_json['{}_{}_conclude'.format(algorithm_type, doc_type)].strip().split(',')
