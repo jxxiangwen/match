@@ -149,6 +149,7 @@ class MatchAlgorithm(object):
         :param algorithm_type: 算法类型
         :return: 是否成功存入数据库
         """
+        #查询匹配表记录
         search_str = "select * from {} WHERE {}={} AND {}={}".format(match_table_name, match_require_id_name,
                                                                      require_id,
                                                                      match_provide_id_name, provide_id)

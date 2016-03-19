@@ -52,12 +52,12 @@ if __name__ == '__main__':
         lsi_result, lda_result, cos_result = (None, None, None)
         with open('./config/algorithm.json', encoding='utf-8') as algorithm_file:
             algorithm_json = json.load(algorithm_file)
-            lsi_threshold = algorithm_json['lsi_threshold']
-            lda_threshold = algorithm_json['lda_threshold']
-            # cos_threshold = algorithm_json['cos_threshold']
-            min_threshold = min(lsi_threshold, lda_threshold)
+            lsi_threshold = algorithm_json['lsi_threshold']#lsi算法阈值
+            lda_threshold = algorithm_json['lda_threshold']#lda算法阈值
+            # cos_threshold = algorithm_json['cos_threshold']#cos算法阈值
+            min_threshold = min(lsi_threshold, lda_threshold)#算法最小阈值
             bool_result = None  # 存储布尔型结果矩阵
-            if algorithm_json['lsi'] or algorithm_json['lda'] or algorithm_json['cos']:
+            if algorithm_json['lsi'] or algorithm_json['lda'] or algorithm_json['cos']:#至少有一个算法成立
                 if algorithm_json['lsi']:
                     algorithm_type_list.append('lsi')
                     # lsi算法

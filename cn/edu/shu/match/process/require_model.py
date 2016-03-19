@@ -31,7 +31,7 @@ class RequireModel(Model):
 
     def set_text(self, train='all'):
         """
-        设置训练数据
+        设置匹配数据
         :param train: 为'train'使用训练数据，为'test'使用测试数据,'all'使用所有数据
         """
         super().set_text(train)

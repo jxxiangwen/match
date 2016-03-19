@@ -54,7 +54,8 @@ def get_data_from_text(doc_id, algorithm_config, doc_type, algorithm_type, read_
         text_list = list()
         text_list.append(text)
         return_data.append(pre_process_cn(text_list)[0])
-        # logging.warning("return_data: %s" %return_data)
+        print("return_data: %s" % return_data)
+        # logging.warning("return_data: %s" % return_data)
     return return_data
 
 

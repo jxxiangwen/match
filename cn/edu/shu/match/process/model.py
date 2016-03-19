@@ -83,12 +83,15 @@ class Model(object):
             # print("正在重新训练模型")
             # print("lib_texts,", lib_texts)
             self._dictionary = corpora.Dictionary(self._text)  # 将文本转化为词典形式为(word,word_id)
-            #  logging.info("dictionary: %s" % dictionary)
+            print("dictionary: %s" % self._dictionary)
+            #  logging.info("dictionary: %s" % self._dictionary)
             self._corpus = [self._dictionary.doc2bow(text) for text in self._text]  # 根据词典对文本进行处理
+            print("corpus: %s" % self._corpus)
             # doc2bow(): 将collection words 转为词袋，用两元组(word_id, word_frequency)表示
-            # logging.warning("corpus: %s" % corpus)
+            # logging.warning("corpus: %s" % self._corpus)
             self._tf_idf = models.TfidfModel(self._corpus)  # 训练td-idf模型
-            #  logging.info("tfidf: %s" % tfidf)
+            print("tfidf: %s" % self._tf_idf)
+            #  logging.info("tfidf: %s" % self._tf_idf)
             corpus_tfidf = self._tf_idf[self._corpus]  # 得到文本的td-idf数据
             #  logging.info("corpus_tfidf: %s" % corpus_tfidf)
             # 根据model_type训练相应模型
@@ -96,6 +99,8 @@ class Model(object):
                 self._model = models.LsiModel(corpus_tfidf, id2word=self._dictionary, num_topics=num_topics)
             elif 'lda' == model_type:
                 self._model = models.LdaModel(corpus_tfidf, id2word=self._dictionary, num_topics=num_topics)
+            elif 'cos' == model_type:
+                pass
             else:
                 raise TypeError("模型类型{}不存在".format(model_type))
             # index 是 gensim.similarities.docsim.MatrixSimilarity 实例
