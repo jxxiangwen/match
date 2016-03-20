@@ -3,7 +3,6 @@ import os.path
 import docx2txt
 import re
 
-
 def joint(regular, text):
     pattern = re.compile(regular[0].strip())  # 索引0是正则式
     result_list = pattern.findall(text)  # 找出文章中所有符合的正则式
