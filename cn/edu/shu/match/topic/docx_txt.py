@@ -74,4 +74,5 @@ def get_train_data():
 
 
 if __name__ == '__main__':
-    get_train_data()
+    test_data()
+    # get_train_data()
