@@ -5,7 +5,8 @@ import sys, os, json
 
 module_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir, os.pardir, os.pardir))
 sys.path.append(module_path)
-os.chdir(sys.path[0])
+project_path = os.path.join(sys.path[1], 'cn', 'edu', 'shu', 'match')  # 改变项目运行路径
+os.chdir(project_path)
 
 __author__ = 'jxxia'
 

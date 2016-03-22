@@ -33,6 +33,10 @@ class MsSql:
             self.user = database_json['user']
             self.password = database_json['password']
             self.database = database_json['database']
+            if not self.database:
+                raise (NameError, "没有设置数据库信息")
+            self.conn = pymssql.connect(host=self.host, user=self.user, password=self.password, database=self.database,
+                                        charset="utf8")
 
     def __get_connect(self):
         """
@@ -40,10 +44,6 @@ class MsSql:
         返回: conn.cursor()
         :return:
         """
-        if not self.database:
-            raise (NameError, "没有设置数据库信息")
-        self.conn = pymssql.connect(host=self.host, user=self.user, password=self.password, database=self.database,
-                                    charset="utf8")
         cursor = self.conn.cursor()
         if not cursor:
             raise (NameError, "连接数据库失败")
@@ -86,6 +86,48 @@ class MsSql:
         cursor = self.__get_connect()
         cursor.execute(sql)
         self.conn.commit()
+        self.conn.close()
+
+    def exec_continue_search(self, sql):
+        """
+        执行持续查询语句
+        需要手动关闭连接
+        返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
+
+        调用示例：
+                ms = MSSQL(host="localhost",user="sa",password="123456",database="PythonWeiboStatistics")
+                resList = ms.exec_search("SELECT id,NickName FROM WeiBoUser")
+                for (id,NickName) in resList:
+                    print str(id),NickName
+        :param sql: 查询语句sql代码
+        :return:
+        """
+        cursor = self.__get_connect()
+        cursor.execute(sql)
+        res_list = cursor.fetchall()
+        return res_list
+
+    def exec_continue_non_search(self, sql):
+        """
+        执行持续非查询语句
+        需要手动关闭连接
+        调用示例：
+            cur = self.__get_connect()
+            cur.execute(sql)
+            self.conn.commit()
+            self.conn.close()
+        :param sql: 非查询语句sql代码
+        :return:
+        """
+        cursor = self.__get_connect()
+        cursor.execute(sql)
+        self.conn.commit()
+
+    def close_conn(self):
+        """
+        关闭连接
+        :return:
+        """
         self.conn.close()
 
     def get_cursor(self):

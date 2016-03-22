@@ -5,6 +5,8 @@ import sys, os
 
 module_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir, os.pardir, os.pardir))
 sys.path.append(module_path)
+project_path = os.path.join(sys.path[1], 'cn', 'edu', 'shu', 'match')  # 改变项目运行路径
+os.chdir(project_path)
 
 from cn.edu.shu.match.build_sql import MsSql
 import json, datetime, time

@@ -40,7 +40,7 @@ class Model(object):
             mongodb_json = json.load(mongodb_file)
             self._train_collection = mongodb_json['train']  # 训练配置文件集合名
             self._test_collection = mongodb_json['test']  # 测试配置文件地址
-        with open('./process/path.json', encoding='utf-8') as path_file:
+        with open('./process/config.json', encoding='utf-8') as path_file:
             path_json = json.load(path_file)
             self._algorithm_config_path = path_json['algorithm_config_path']  # 算法配置文件地址
             self._save_path = path_json['save_path']  # 训练结果保存目录
@@ -142,6 +142,6 @@ class Model(object):
         pass
 
         # if __name__ == '__main__':
-        #     with open('./path.json', encoding='utf-8') as path_file:
+        #     with open('./config.json', encoding='utf-8') as path_file:
         #         path_json = json.load(path_file)
         #         print(path_json['train_path'])  # 训练配置文件地址
