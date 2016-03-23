@@ -16,9 +16,22 @@ os.chdir(project_path)
 
 from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.read_property import change_json_file
+import cn.edu.shu.match.global_variable as gl
 
-jieba.analyse.set_stop_words("./topic/stopwords.dic")
-jieba.load_userdict("./topic/dict1.txt")
+def get_config_json(path):
+    """
+    得到config.json数据
+    :param path:
+    :return:
+    """
+    with open(path, encoding='utf-8') as config_file:
+        config_json = json.load(config_file)
+        return config_json
+
+
+config_json = get_config_json(gl.config_path)
+jieba.analyse.set_stop_words(config_json['gensim_stopword_path'])
+jieba.load_userdict(config_json['gensim_dict_path'])
 
 ms_sql = MsSql()
 
@@ -27,16 +40,6 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename=('main_%s.log' % time.strftime('%Y-%m-%d', time.localtime())),
                     filemode='a')
-
-
-def get_config_json():
-    """
-    得到config.json数据
-    :return:
-    """
-    with open('./topic/config.json', encoding='utf-8') as config_file:
-        config_json = json.load(config_file)
-        return config_json
 
 
 def get_dir_path(path):
@@ -91,7 +94,6 @@ def test_extract_data():
     测试提取是否成功
     :return:
     """
-    config_json = get_config_json()
     root_dir = get_dir_path(config_json['doc_path'])
     # dir_names是文件夹，file_names是文件
     for parent, dir_names, file_names in os.walk(root_dir):
@@ -110,7 +112,7 @@ def test_extract_data():
                     result_list = [joint(regular, text) for regular in regular_list]
                     print(len(result_list[0]))
                     print(len(result_list[1]))
-                    with open('title.txt', mode='w', encoding='utf-8') as title_file:
+                    with open('./topic/title.txt', mode='w', encoding='utf-8') as title_file:
                         for index, title in enumerate(result_list[0]):
                             title_file.write(title + '      ' + result_list[1][index])
                             title_file.write('\n')
@@ -121,7 +123,6 @@ def extract_train_data():
     正式提取
     :return:
     """
-    config_json = get_config_json()
     root_dir = get_dir_path(config_json['doc_path'])
     for parent, dir_names, file_names in os.walk(root_dir):
         file_names = [os.path.join(parent, file_name) for file_name in file_names]
@@ -139,7 +140,7 @@ def extract_train_data():
                     result_list = [joint(regular, text) for regular in regular_list]
                     print(len(result_list[0]))
                     print(len(result_list[1]))
-                    with open('train.txt', mode='a', encoding='utf-8') as title_file:
+                    with open(config_json['train_path'], mode='a', encoding='utf-8') as title_file:
                         for index, title in enumerate(result_list[0]):
                             title_file.write(title + '，' + result_list[1][index])
                             title_file.write('\n')
@@ -155,7 +156,6 @@ def update_or_insert_data(data):
     :param data:
     :return:
     """
-    config_json = get_config_json()
     # 最多抽取分词后的10000个词语
     participle_result = jieba.analyse.extract_tags(data, topK=10000)
     for word in participle_result:
@@ -192,7 +192,6 @@ def update_tf_idf_by_data(data):
     通过新增数据更新idf表
     :return:
     """
-    config_json = get_config_json()
     # 训练文件地址
     train_file_path = get_file_path(config_json['train_path'])
     # 分词后存放地址
@@ -239,8 +238,8 @@ def update_tf_idf_by_data(data):
                     for result in results:
                         if len(result) != 0:
                             update_or_insert_data(result[0][1] + result[0][2])
-                    config_json['patent_max_id_used'] = max_patent_id_result  # 修改使用过的专利数据最大id
-                    change_json_file('./topic/config.json', config_json)
+                    config_json['patent_max_id_used'] = max_patent_id_result[0][0]  # 修改使用过的专利数据最大id
+                    change_json_file(gl.config_path, **config_json)
                     # 遍历专利数据结束
             # 文档总数
             file_num_result = ms_sql.exec_continue_search(
@@ -263,7 +262,6 @@ def produce_tf_idf_file():
     通过训练数据和专利数据产生tf-idf
     :return:
     """
-    config_json = get_config_json()
     # 最大id序号，查看tf-idf表最大id
     max_id_result = ms_sql.exec_continue_search(
         "SELECT MAX({}) FROM {} ".format(config_json['idf_corpus_column_name'][0],
@@ -281,7 +279,7 @@ def produce_tf_idf_file():
             config_json['idf_corpus_table'], config_json['idf_corpus_column_name'][0], tdf_id)) for tdf_id in
                range(max_id) if tdf_id != 0)
     import math
-    with open('./topic/tf_idf.txt', mode='w', encoding='utf-8') as tf_idf_file:
+    with open(config_json['gensim_tf_idf_path'], mode='w', encoding='utf-8') as tf_idf_file:
         for result in results:
             if len(result) != 0:
                 tf_idf_file.writelines(
@@ -294,8 +292,8 @@ def normalization_tf_idf():
     :return:
     """
     tf_idf_list = list()
-    with open('./topic/tf_idf.txt', encoding='utf-8') as tf_idf_file:
-        with open('./topic/normalization_tf_idf.txt', mode='w', encoding='utf-8') as normalization_tf_idf_file:
+    with open(config_json['gensim_tf_idf_path'], encoding='utf-8') as tf_idf_file:
+        with open(config_json['gensim_normalization_tf_idf_path'], mode='w', encoding='utf-8') as normalization_tf_idf_file:
             for tf_idf in tf_idf_file:
                 tf_idf_list.append(tf_idf.strip().split(' '))
             tf_idf_list = sorted(tf_idf_list, key=lambda a_tf_idf: float(a_tf_idf[1]))
@@ -308,4 +306,6 @@ if __name__ == '__main__':
     # produce_tf_idf_file()
     # ms_sql.close_conn()
     # normalization_tf_idf()
+    # test_extract_data()
+    # extract_train_data()
     pass
