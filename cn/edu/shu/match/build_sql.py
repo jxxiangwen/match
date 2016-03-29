@@ -10,7 +10,7 @@ from collections import namedtuple
 from time import strftime, localtime
 import pymssql, json, logging, datetime
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.WARN,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename=('log/build_sql_%s.log' % strftime('%Y-%m-%d', localtime())),
@@ -36,7 +36,7 @@ class MsSql:
             if not self.database:
                 raise (NameError, "没有设置数据库信息")
             self.conn = pymssql.connect(host=self.host, user=self.user, password=self.password, database=self.database,
-                                        charset="utf8")
+                                        port=25366, charset="utf8")
 
     def __get_connect(self):
         """
@@ -44,6 +44,8 @@ class MsSql:
         返回: conn.cursor()
         :return:
         """
+        self.conn = pymssql.connect(host=self.host, user=self.user, password=self.password, database=self.database,
+                                    port=25366, charset="utf8")
         cursor = self.conn.cursor()
         if not cursor:
             raise (NameError, "连接数据库失败")
@@ -103,6 +105,7 @@ class MsSql:
         :return:
         """
         cursor = self.__get_connect()
+        # print(cursor)
         cursor.execute(sql)
         res_list = cursor.fetchall()
         return res_list

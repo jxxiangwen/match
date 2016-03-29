@@ -10,7 +10,7 @@ from time import strftime, localtime
 from pymongo import MongoClient
 import json, sys, logging
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.WARN,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename=('log/build_mongo_%s.log' % strftime('%Y-%m-%d', localtime())),

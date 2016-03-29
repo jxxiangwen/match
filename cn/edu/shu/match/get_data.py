@@ -9,7 +9,7 @@ import logging,json
 
 __author__ = 'jxxia'
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.WARN,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename=('log/get_data_%s.log' % strftime('%Y-%m-%d', localtime())),
@@ -73,8 +73,7 @@ def get_one_from_text(require_id, provide_id, algorithm_config, doc_type, algori
     :param match_need：匹配所需信息
     :return: 预处理后数据
     """
-    data, data_index, weight_dict = product_conclude_weight(algorithm_config, doc_type, algorithm_type, read_file,
-                                                            match_need)
+    data, data_index, weight_dict = product_conclude_weight(algorithm_config, doc_type, algorithm_type)
     # logging.debug("data : %s" % data)
     for index, document in enumerate(data):
         # 存储文档序号顺序
@@ -89,11 +88,7 @@ def get_one_from_text(require_id, provide_id, algorithm_config, doc_type, algori
         for conclude_index, subscript in enumerate(data_index):
             int_sub = int(subscript)
             if document[int_sub]:
-                # text += document[int(subscript)] + ","
-                if type(weight_dict) == type({}):
-                    text += (document[int_sub] + ",") * int(weight_dict[subscript])
-                else:
-                    text += (document[int_sub] + ",") * int(weight_dict[conclude_index])
+                text += document[int_sub] + ","
         # logging.warning("第%s篇%s文档文章为：%s" % (index, doc_type, document[0]))
         temp_list = list()
         temp_list.append(text)
@@ -131,7 +126,7 @@ def get_datas_from_keys(doc_type, require_id, provide_id, read_file=True, match_
         # 提取文档匹配所需信息
         for i in range(2, num * 2, 2):
             document_word.append(document[i])
-        logging.warning("第%s篇%s文档词为：%s" % (index, doc_type, document[0]))
+        # logging.warning("第%s篇%s文档词为：%s" % (index, doc_type, document[0]))
         return_data.append(document_word)
 
     return return_data
@@ -155,7 +150,7 @@ def get_one_from_keys(doc_type, require_id, provide_id, read_file=True, match_ne
         data = sql.exec_search("select * from ProvideDocKeyWs")
     else:
         raise ValueError
-    logging.info("data : %s" % data)
+    # logging.info("data : %s" % data)
     for index, document in enumerate(data):
         # 存储文档序号顺序
         if 'require' == doc_type:
@@ -164,7 +159,7 @@ def get_one_from_keys(doc_type, require_id, provide_id, read_file=True, match_ne
             provide_id.append(document[0])
         else:
             raise ValueError
-        logging.warning("第%s篇%s文档词为：%s" % (index, doc_type, document[0]))
+        # logging.warning("第%s篇%s文档词为：%s" % (index, doc_type, document[0]))
         document_word = []
         # 提取文档匹配所需信息
         for i in range(2, num * 2, 2):
@@ -173,18 +168,17 @@ def get_one_from_keys(doc_type, require_id, provide_id, read_file=True, match_ne
         yield document_word
 
 
-def product_conclude_weight(algorithm_config, doc_type, algorithm_type, read_file=True, match_need={}):
+def product_conclude_weight(algorithm_config, doc_type, algorithm_type):
     """
     产生获取数据函数所需的索引和权重
     :param algorithm_config: 算法配置文件地址
     :param doc_type: 取出数据的类型
     :param algorithm_type: 匹配时所用算法类型
-    :param read_file:通过文件读取匹配所需还是通过match_need读取True为通过文件读取
-    :param match_need：匹配所需信息
     :return:3元组
     """
     sql = MsSql()
     data = []
+    data_index = []
     # 读取数据库中表名
     with open('./config/table.json', encoding='utf-8') as table_file:
         table_json = json.load(table_file)
@@ -193,30 +187,17 @@ def product_conclude_weight(algorithm_config, doc_type, algorithm_type, read_fil
             algorithm_json = json.load(algorithm_file)
             if 'require' == doc_type:
                 data = sql.exec_search("select * from %s" % table_json['require'])
-                if read_file:
-                    # 获得需求表匹配时字段索引
-                    require_conclude = algorithm_json[algorithm_type + '_require_conclude'].strip().split(',')
-                    logging.warning("require_conclude:%s" % require_conclude)
-                    # 获得需求表匹配时字段索引的权重
-                    require_weight = algorithm_json[algorithm_type + '_require_weight'].strip().split(',')
-                    weight_dict = str_list_to_dict(require_weight)
-                    data_index = list(require_conclude)
-                else:
-                    data_index = match_need['require_conclude']
-                    weight_dict = match_need['require_weight']
+                # 获得需求表匹配时字段索引
+                require_conclude = algorithm_json[algorithm_type + '_require_conclude'].strip().split(',')
+                # logging.warning("require_conclude:%s" % require_conclude)
+                data_index = list(require_conclude)
+
             elif 'provide' == doc_type:
                 data = sql.exec_search("select * from %s" % table_json['provide'])
-                if read_file:
-                    # 获得服务表匹配时字段索引
-                    provide_conclude = algorithm_json[algorithm_type + '_provide_conclude'].strip().split(',')
-                    logging.warning("provide_conclude:%s" % provide_conclude)
-                    # 获得服务表匹配时字段索引的权重
-                    provide_weight = algorithm_json[algorithm_type + '_provide_weight'].strip().split(',')
-                    weight_dict = str_list_to_dict(provide_weight)
-                    data_index = list(provide_conclude)
-                else:
-                    data_index = match_need['provide_conclude']
-                    weight_dict = match_need['provide_weight']
+                # 获得服务表匹配时字段索引
+                provide_conclude = algorithm_json[algorithm_type + '_provide_conclude'].strip().split(',')
+                # logging.warning("provide_conclude:%s" % provide_conclude)
+                data_index = list(provide_conclude)
             else:
                 raise ValueError("类型'%s'不存在!" % doc_type)
-    return tuple((data, data_index, weight_dict))
+    return tuple((data, data_index))

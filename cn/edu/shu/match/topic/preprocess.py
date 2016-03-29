@@ -11,8 +11,10 @@ import sys
 
 module_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir, os.pardir, os.pardir, os.pardir))
 sys.path.append(module_path)
-project_path = os.path.join(sys.path[1], 'cn', 'edu', 'shu', 'match')  # 改变项目运行路径
-os.chdir(project_path)
+for a_path in sys.path:
+    if os.path.exists(os.path.join(a_path, 'cn', 'edu', 'shu', 'match')):
+        os.chdir(os.path.join(a_path, 'cn', 'edu', 'shu', 'match'))
+        break
 
 from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.read_property import change_json_file
@@ -35,7 +37,7 @@ jieba.load_userdict(config_json['gensim_dict_path'])
 
 ms_sql = MsSql()
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.WARN,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename=('main_%s.log' % time.strftime('%Y-%m-%d', time.localtime())),

@@ -6,7 +6,7 @@ import logging
 
 __author__ = 'jxxia'
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.WARN,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename=('log/preprocess_%s.log' % strftime('%Y-%m-%d', localtime())),
@@ -50,12 +50,12 @@ def pre_process_cn(courses, low_freq_filter=False):
     from nltk.stem.lancaster import LancasterStemmer
     st = LancasterStemmer()
     texts_stemmed = [[st.stem(word) for word in docment] for docment in texts_filtered]
-    logging.debug("预处理后的数据为:", texts_stemmed)
+    # logging.debug("预处理后的数据为:", texts_stemmed)
 
     # 去除过低频词
     if low_freq_filter:
         all_stems = sum(texts_stemmed, [])
-        logging.debug("all_stems:", all_stems)
+        # logging.debug("all_stems:", all_stems)
         stems_once = set(stem for stem in set(all_stems) if all_stems.count(stem) == 1)
         return [[stem for stem in text if stem not in stems_once] for text in texts_stemmed]
     else:

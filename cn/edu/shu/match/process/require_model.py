@@ -52,8 +52,7 @@ class RequireModel(Model):
                 # 得到需求id
                 self._document_id = [result[0] for result in results]
                 # 获取语料库
-        self._text = get_data_from_text(self._document_id, self._algorithm_config_path, 'require',
-                                        self._algorithm_type, self._read_file, self._match_need)
+        self._text = get_data_from_text(self._document_id, self._algorithm_config_path, 'require')
 
     def train(self, model_type, doc_type, re_train=True, num_topics=5):
         """

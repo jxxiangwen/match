@@ -117,15 +117,15 @@ def result_merge(require_ids, provide_ids, *results):
 
 
 if __name__ == '__main__':
-    a_dict = {'provide_conclude': ['2', '4', '8', '9', '12', '16', '17', '18', '20', '25'],
-              'score': 0.08683506435346335,
-              'require_weight': ['3', '1', '2', '1', '3'], 'require_conclude': ['2', '4', '8', '11', '18'],
-              'provide_weight': ['3', '3', '1', '1', '0', '0', '1', '5', '5', '4'], 'algorithm_type': 'lsi', 'used': 0}
-    print(type(a_dict))
-    change_algorithm_json('./config/algorithm.json', **a_dict)
-    print(dict_to_str(['1', '2', '3'], ['1', '2', '3']))
-    value = {'default': False}
-    change_json_file('./config/testdata.json', **value)
-    assert str_value_to_int_list('1,2,3,4') == [1, 2, 3, 4]
-    print(get_mssql_time(datetime.datetime.now()))
+    # a_dict = {'provide_conclude': ['2', '4', '8', '9', '12', '16', '17', '18', '20', '25'],
+    #           'score': 0.08683506435346335,
+    #           'require_weight': ['3', '1', '2', '1', '3'], 'require_conclude': ['2', '4', '8', '11', '18'],
+    #           'provide_weight': ['3', '3', '1', '1', '0', '0', '1', '5', '5', '4'], 'algorithm_type': 'lsi', 'used': 0}
+    # print(type(a_dict))
+    # change_algorithm_json('./config/algorithm.json', **a_dict)
+    # print(dict_to_str(['1', '2', '3'], ['1', '2', '3']))
+    # value = {'default': False}
+    # change_json_file('./config/testdata.json', **value)
+    # assert str_value_to_int_list('1,2,3,4') == [1, 2, 3, 4]
+    # print(get_mssql_time(datetime.datetime.now()))
     print(str_list_to_dict("2-5,4-5,8-5,11-5,18-5".strip().split(',')))

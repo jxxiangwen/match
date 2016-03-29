@@ -5,8 +5,10 @@ import sys, os
 
 module_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir, os.pardir, os.pardir))
 sys.path.append(module_path)
-project_path = os.path.join(sys.path[1], 'cn', 'edu', 'shu', 'match')#改变项目运行路径
-os.chdir(project_path)
+for a_path in sys.path:
+    if os.path.exists(os.path.join(a_path, 'cn', 'edu', 'shu', 'match')):
+        os.chdir(os.path.join(a_path, 'cn', 'edu', 'shu', 'match'))
+        break
 
 from cn.edu.shu.match.change_doc_status import change_require_status, change_provide_status
 from cn.edu.shu.match.build_sql import MsSql
@@ -16,7 +18,7 @@ from cn.edu.shu.match.get_comment import GetComment
 import numpy as np
 import time, json, logging
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.WARN,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename=('log/main_%s.log' % time.strftime('%Y-%m-%d', time.localtime())),

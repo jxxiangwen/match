@@ -10,7 +10,7 @@ import random, time, json, sys, logging
 
 __author__ = 'jxxia'
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.WARN,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S',
                     filename=('log/genetic_algorithm_%s.log' % strftime('%Y-%m-%d', localtime())),
