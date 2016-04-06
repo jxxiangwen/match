@@ -8,7 +8,18 @@ Created on Sun Jun 28 10:50:50 2015
 
 from time import strftime, localtime
 from pymongo import MongoClient
-import json, sys, logging
+import json
+import sys
+import logging
+import os
+
+# 将路径更改为项目初始路径
+module_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir, os.pardir, os.pardir, os.pardir, os.pardir))
+sys.path.append(module_path)
+for a_path in sys.path:
+    if os.path.exists(os.path.join(a_path, 'cn', 'edu', 'shu', 'match')):
+        os.chdir(os.path.join(a_path, 'cn', 'edu', 'shu', 'match'))
+        break
 
 logging.basicConfig(level=logging.WARN,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
@@ -35,20 +46,19 @@ class Mongo:
         """
         with open('./config/mongodb.json', encoding='utf-8') as mongodb_file:
             mongodb_json = json.load(mongodb_file)
-            database_name = mongodb_json['default_database']  # 默认使用MongoDB哪个数据库
-            collection_name = mongodb_json['default_collection']  # 默认使用MongoDB哪个集合
-        self._client = None  # 连接数据库客户端
-        self._database = None  # 数据库
-        self._collection = None  # 集合
-        self._database_name = database_name  # 需要连接的数据库名字
-        with open('./config/mongodb.json', encoding='utf-8') as mongodb_file:
-            mongodb_json = json.load(mongodb_file)
-            self._url = mongodb_json['url']
-            self._collection_name = mongodb_json[collection_name]  # 需要连接的结合名字
+            self._url = mongodb_json['url']  # 连接地址
+            if database_name:
+                self._database_name = database_name  # 需要连接的数据库名字
+            else:
+                self._database_name = mongodb_json['default_database']  # 默认使用MongoDB哪个数据库
+            if collection_name:
+                self._collection_name = collection_name
+            else:
+                self._collection_name = mongodb_json['default_collection']  # 默认使用MongoDB哪个集合
         # 初始化连接
-        self._client = MongoClient(self._url)
-        self._database = self._client[self._database_name]
-        self._collection = self._database[self._collection_name]
+        self._client = MongoClient(self._url)  # 连接数据库客户端
+        self._database = self._client[self._database_name]  # 数据库
+        self._collection = self._database[self._collection_name]  # 集合
 
     def get_collection(self):
         """

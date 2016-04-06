@@ -8,13 +8,9 @@ Created on Sun Jun 28 10:50:50 2015
 
 from collections import namedtuple
 from time import strftime, localtime
-import pymssql, json, logging, datetime
+import pymssql, json, datetime
 
-logging.basicConfig(level=logging.WARN,
-                    format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename=('log/build_sql_%s.log' % strftime('%Y-%m-%d', localtime())),
-                    filemode='a')
+
 
 
 class MsSql:

@@ -18,11 +18,12 @@ for a_path in sys.path:
 
 __author__ = 'jxxia'
 
-logging.basicConfig(level=logging.WARN,
-                    format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename=('log/get_data_%s.log' % strftime('%Y-%m-%d', localtime())),
-                    filemode='a')
+
+# logging.basicConfig(level=logging.WARN,
+#                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',
+#                     datefmt='%a, %d %b %Y %H:%M:%S',
+#                     filename=('log/get_data_%s.log' % strftime('%Y-%m-%d', localtime())),
+#                     filemode='a')
 
 
 def get_data_from_text(doc_id, algorithm_config_path, doc_type):
@@ -88,6 +89,7 @@ def product_conclude(doc_id, algorithm_config_path, doc_type):
     sql = MsSql()
     data = list()  # 保存数据
     data_index = list()  # 保存文档匹配所需数据在表中索引号
+    import collections
     # 读取数据库中表名
     with open('./config/table.json', encoding='utf-8') as table_file:
         table_json = json.load(table_file)
@@ -97,28 +99,43 @@ def product_conclude(doc_id, algorithm_config_path, doc_type):
             if not ('require' == doc_type or 'provide' == doc_type):
                 raise ValueError("类型{}不存在!".format(doc_type))
             if 'require' == doc_type:
-                if isinstance(doc_id, int):
-                    data = sql.exec_search(
-                        'SELECT * FROM {} WHERE {} = {}'.format(table_json[doc_type], table_json['require_id'], doc_id))
+                if not isinstance(doc_id, collections.Iterable):
+                    if str.isdigit(str(doc_id)):
+                        data = sql.exec_search('SELECT * ,RequireDocInfor_status FROM {} WHERE {} = {}'.
+                                               format(table_json[doc_type], table_json['require_id'], doc_id))
+                        # 状态不合法，返回None
+                        if 0 == len(data) or data[0][-1] not in gl.require_normal_status:
+                            data = None
                 else:
-                    print('SELECT * FROM {} WHERE {} IN {}'.format(table_json[doc_type], table_json['require_id'],
-                                                                   tuple(doc_id)))
-                    data = sql.exec_search(
-                        'SELECT * FROM {} WHERE {} IN {}'.format(table_json[doc_type], table_json['require_id'],
-                                                                 tuple(doc_id)))
+                    logging.info('SELECT * FROM {} WHERE {} IN {} AND RequireDocInfor_status IN {}'.
+                                 format(table_json[doc_type], table_json['require_id'], tuple(doc_id),
+                                        tuple(gl.require_normal_status)))
+                    data = sql.exec_search('SELECT * FROM {} WHERE {} IN {} AND RequireDocInfor_status IN {}'.
+                                           format(table_json[doc_type], table_json['require_id'], tuple(doc_id),
+                                                  tuple(gl.require_normal_status)))
             else:
-                if isinstance(doc_id, int):
-                    data = sql.exec_search(
-                        'SELECT * FROM {} WHERE {} == {}'.format(table_json[doc_type], table_json['provide_id'],
-                                                                 doc_id))
+                if not isinstance(doc_id, collections.Iterable):
+                    if str.isdigit(str(doc_id)):
+                        data = sql.exec_search('SELECT * ,ProvideDocInfor_status FROM {} WHERE {} = {}'.
+                                               format(table_json[doc_type], table_json['provide_id'], doc_id))
+                        print(data)
+                    # 状态不合法，返回None
+                    if 0 == len(data) or data[0][-1] not in gl.provide_normal_status:
+                        data = None
                 else:
-                    print('SELECT * FROM {} WHERE {} IN {}'.format(table_json[doc_type], table_json['provide_id'],
-                                                                   tuple(doc_id)))
-                    data = sql.exec_search(
-                        'SELECT * FROM {} WHERE {} IN {}'.format(table_json[doc_type], table_json['provide_id'],
-                                                                 tuple(doc_id)))
+                    logging.info('SELECT * FROM {} WHERE {} IN {} AND ProvideDocInfor_status IN {}'.
+                                 format(table_json[doc_type], table_json['provide_id'], tuple(doc_id),
+                                        tuple(gl.provide_normal_status)))
+                    data = sql.exec_search('SELECT * FROM {} WHERE {} IN {} AND ProvideDocInfor_status IN {}'.
+                                           format(table_json[doc_type], table_json['provide_id'], tuple(doc_id),
+                                                  tuple(gl.provide_normal_status)))
             # 获得需求表匹配时字段索引
             conclude = algorithm_json['{}_conclude'.format(doc_type)].strip().split(',')
             # logging.warning('{}_conclude:%s'.format(conclude))
             data_index = list(conclude)
     return tuple((data, data_index))
+
+
+if __name__ == '__main__':
+    pass
+    # product_conclude(range(0,100), gl.algorithm_config_path, 'require')

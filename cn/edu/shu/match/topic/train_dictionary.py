@@ -1,0 +1,4 @@
+
+
+class Dictionary(object):
+    pass

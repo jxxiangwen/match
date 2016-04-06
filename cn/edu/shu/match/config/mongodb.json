@@ -24,5 +24,9 @@
   "degree": "degree",
   "degree_comment": "MongoDB中匹配度转换所在集合",
   "record": "record",
-  "record_comment": "MongoDB中算法记录所在集合"
+  "record_comment": "MongoDB中算法记录所在集合",
+  "require": "require",
+  "require_comment": "MongoDB中需求文档所在集合",
+  "provide": "provide",
+  "provide_comment": "MongoDB中服务文档所在集合"
 }

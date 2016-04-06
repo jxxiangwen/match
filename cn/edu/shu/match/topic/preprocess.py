@@ -20,6 +20,7 @@ from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.read_property import change_json_file
 import cn.edu.shu.match.global_variable as gl
 
+
 def get_config_json(path):
     """
     得到config.json数据
@@ -27,8 +28,7 @@ def get_config_json(path):
     :return:
     """
     with open(path, encoding='utf-8') as config_file:
-        config_json = json.load(config_file)
-        return config_json
+        return json.load(config_file)
 
 
 config_json = get_config_json(gl.config_path)
@@ -295,7 +295,8 @@ def normalization_tf_idf():
     """
     tf_idf_list = list()
     with open(config_json['gensim_tf_idf_path'], encoding='utf-8') as tf_idf_file:
-        with open(config_json['gensim_normalization_tf_idf_path'], mode='w', encoding='utf-8') as normalization_tf_idf_file:
+        with open(config_json['gensim_normalization_tf_idf_path'], mode='w',
+                  encoding='utf-8') as normalization_tf_idf_file:
             for tf_idf in tf_idf_file:
                 tf_idf_list.append(tf_idf.strip().split(' '))
             tf_idf_list = sorted(tf_idf_list, key=lambda a_tf_idf: float(a_tf_idf[1]))
