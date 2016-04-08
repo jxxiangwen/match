@@ -11,15 +11,23 @@ for a_path in sys.path:
         os.chdir(os.path.join(a_path, 'cn', 'edu', 'shu', 'match'))
         break
 
+import cn.edu.shu.match.global_variable as gl
+from cn.edu.shu.match.build_mongodb import Mongo
 from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.topic.preprocess import get_config_json
 from cn.edu.shu.match.match_algorithm import MatchAlgorithm
 from cn.edu.shu.match.topic.topic_train import TopicTrain
+from cn.edu.shu.match.topic.train_corpus import MyCorpus
+from cn.edu.shu.match.topic.train_tf_idf_model import MyTfIdfModel
+from cn.edu.shu.match.topic.train_dictionary import MyDictionary
+from cn.edu.shu.match.topic.train_lda_model import MyLdaModel
+from cn.edu.shu.match.topic.insert_document_to_mongo import insert_data
 from cn.edu.shu.match.topic.topic_match import TopicUtils
-import cn.edu.shu.match.global_variable as gl
 
+mongo = Mongo()
 ms_sql = MsSql()
 config_json = get_config_json(gl.config_path)
+mongodb_json = get_config_json(gl.mongodb_path)
 algorithm_json = get_config_json(gl.algorithm_config_path)
 require_table_json = get_config_json(gl.require_table_path)
 provide_table_json = get_config_json(gl.provide_table_path)
@@ -31,16 +39,50 @@ logging.basicConfig(level=logging.INFO,
                     filemode='a')
 
 
-def produce_match_document():
+def insert_into_match(require_id, provide_id, match_degree, algorithm_type):
     """
-    产生匹配的需求和服务
+    向数据库插入匹配结果
+    :param require_id:
+    :param provide_id:
+    :param match_degree:
+    :param algorithm_type:
     :return:
     """
+    mongo.set_collection(mongodb_json['require'])
+    require_vector = mongo.find_one({"require_id": require_id})
+    mongo.set_collection(mongodb_json['provide'])
+    provide_vector = mongo.find_one({"provide_id": provide_id})
+    if TopicUtils.get_cos_value(require_vector, provide_vector) > gl.cos_match_threshold:
+        MatchAlgorithm.save(require_id, provide_id, match_degree, algorithm_type)
+
+
+def produce_match_document(update=True):
+    """
+    产生匹配的需求和服务
+    :param update: 
+    :return: 
+    """
+    logging.warning("开始进行匹配计算")
     topic_train = TopicTrain()
-    topic_train.update_all()
-    dictionary = topic_train.get_dictionary()
-    tf_idf_model = topic_train.get_tf_idf()
-    lda_model = topic_train.get_lda()
+    if update:
+        topic_train.update_all()
+    else:
+        topic_train.re_train_all()
+    dictionary = MyDictionary().get_dictionary()
+    # 重新得到语料库
+    corpus = MyCorpus()
+    if not corpus.re_train_corpus():
+        # 语料库不存在
+        return None
+    tf_idf_model = MyTfIdfModel()
+    if corpus.is_update():
+        # 语料库有更新，重新得到tf_idf模型
+        tf_idf_model.re_train_tf_idf(corpus.get_corpus())
+    tf_idf_model = tf_idf_model.get_tf_idf()
+    insert_data()
+    lda_model = MyLdaModel.get_lda()
+    if not lda_model:
+        return None
     topic_utils = TopicUtils()
     # 最大需求id序号
     max_require_id = ms_sql.exec_continue_search(
@@ -55,7 +97,7 @@ def produce_match_document():
             for require_id in range(0, max_require_id[0][0] + 1):
                 provide_dict = topic_utils.get_match_provide_by_require(lda_model, tf_idf_model, dictionary, require_id)
                 for provide_id, match_degree in provide_dict.items():
-                    MatchAlgorithm.save(require_id, provide_id, match_degree, '')
+                    insert_into_match(require_id, provide_id, match_degree, '')
         else:
             for index in range(id_range_list_len):
                 if index + 1 < id_range_list_len:
@@ -63,29 +105,27 @@ def produce_match_document():
                         provide_dict = topic_utils.get_match_provide_by_require(lda_model, tf_idf_model, dictionary,
                                                                                 require_id)
                         for provide_id, match_degree in provide_dict.items():
-                            MatchAlgorithm.save(require_id, provide_id, match_degree, '')
+                            insert_into_match(require_id, provide_id, match_degree, '')
 
             for require_id in range(id_range_list[-1], int(max_require_id[0][0]) + 1):
                 provide_dict = topic_utils.get_match_provide_by_require(lda_model, tf_idf_model, dictionary, require_id)
                 for provide_id, match_degree in provide_dict.items():
-                    MatchAlgorithm.save(require_id, provide_id, match_degree, '')
+                    insert_into_match(require_id, provide_id, match_degree, '')
+    logging.warning("结束匹配计算")
 
 
 if __name__ == '__main__':
-    # import jieba
-    # topic_train = TopicTrain()
-    # topic_utils = TopicUtils()
-    # dictionary = topic_train.get_dictionary()
-    # lda_model = topic_train.get_lda()
-    # tf_idf_model = topic_train.get_tf_idf()
-    # print('tf_idf_model:', tf_idf_model)
-    # print(lda_model[dictionary.doc2bow(jieba.cut('太赫兹人体安检仪技术能级升级难题攻克'))])
-    # topic_utils.get_match_provide_by_require(lda_model, tf_idf_model, dictionary, 131)
+    times = 0
     while True:
         start = time.clock()
-        produce_match_document()
+        # 每10次重新训练一次
+        if times % 10 == 0:
+            produce_match_document(update=False)
+        else:
+            produce_match_document()
         end = time.clock()
         print("程序运行了: %f 秒" % (end - start))
-        sleep_time = 3600 * 24 - int(end - start)
+        logging.warning("程序运行了: %f 秒" % (end - start))
+        sleep_time = config_json['time_to_run'] * 3600 * 24 - int(end - start)
         if sleep_time > 0:
             time.sleep(sleep_time)

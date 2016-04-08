@@ -1,0 +1,7 @@
+{
+    "1_init": "初始化需要把所有id设为0，false设为true",
+    "insert_max_provide_id_used": 0,
+    "insert_max_provide_id_used_comment": "语料训练上次训练所用的服务最大号",
+    "insert_max_require_id_used": 0,
+    "insert_max_require_id_used_comment": "语料训练上次训练所用的需求最大号"
+}

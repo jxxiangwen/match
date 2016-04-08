@@ -5,7 +5,7 @@ from cn.edu.shu.match.build_sql import MsSql
 from cn.edu.shu.match.build_mongodb import Mongo
 from time import strftime, localtime
 import numpy as np
-import json, sys, json
+import logging, sys, json
 
 __author__ = 'jxxia'
 
@@ -149,7 +149,7 @@ class MatchAlgorithm(object):
         :param algorithm_type: 算法类型
         :return: 是否成功存入数据库
         """
-        #查询匹配表记录
+        # 查询匹配表记录
         search_str = "select * from {} WHERE {}={} AND {}={}".format(match_table_name, match_require_id_name,
                                                                      require_id,
                                                                      match_provide_id_name, provide_id)
@@ -163,7 +163,7 @@ class MatchAlgorithm(object):
                 "select {} from {} where {} = {}".format(provide_user_id_name, provide_table_name, provide_id_name,
                                                          provide_id))
             if require_result[0] != provide_result[0]:
-                print("INSERT INTO %s VALUES ('%s', '%s', '%s', '0', '%s', '0', '0',%s)" % (
+                logging.warning("INSERT INTO %s VALUES ('%s', '%s', '%s', '0', '%s', '0', '0',%s)" % (
                     match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
                     strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
                 # 保存记录UPDATE Person SET FirstName = 'Fred' WHERE LastName = 'Wilson'
@@ -171,7 +171,7 @@ class MatchAlgorithm(object):
                     match_table_name, require_id, provide_id, MatchAlgorithm.degree_transform(result),
                     strftime('%Y-%m-%d %H:%M:%S', localtime()), algorithm_type))
         else:
-            print("UPDATE %s SET %s = %s,%s = '%s' WHERE %s = %d AND %s = %d" % (
+            logging.warning("UPDATE %s SET %s = %s,%s = '%s' WHERE %s = %d AND %s = %d" % (
                 match_table_name, degree_name, MatchAlgorithm.degree_transform(result), match_algorithm_type,
                 algorithm_type, match_require_id_name, require_id, match_provide_id_name, provide_id))
             # 更新记录

@@ -14,6 +14,7 @@ for a_path in sys.path:
 
 from time import strftime, localtime
 from cn.edu.shu.match.build_sql import MsSql
+from cn.edu.shu.match.topic.train_utils import Utils
 from cn.edu.shu.match.topic.preprocess import get_config_json
 from cn.edu.shu.match.process.get_text import get_data_from_text
 import cn.edu.shu.match.global_variable as gl
@@ -33,7 +34,7 @@ jieba.load_userdict(config_json['gensim_dict_path'])
 jieba.analyse.set_idf_path(config_json['gensim_tf_idf_path'])
 
 
-class Document(object):
+class MyDocument(object):
     def __init__(self, train_file=True, begin_require_id=0, begin_provide_id=0, begin_patent_id=0):
         """
         初始化语料库信息
@@ -47,20 +48,39 @@ class Document(object):
         self.begin_require_id = begin_require_id
         self.begin_provide_id = begin_provide_id
         self.begin_patent_id = begin_patent_id
+        # 最大需求id序号
+        self.max_require_id = ms_sql.exec_continue_search(
+            "SELECT MAX ({}) FROM {} WHERE {} IN {}".format(
+                require_table_json['require_id'], require_table_json['require'], require_table_json['require_status'],
+                gl.require_normal_status))
+        # 最大服务id序号
+        self.max_provide_id = ms_sql.exec_continue_search(
+            "SELECT MAX ({}) FROM {} WHERE {} IN {}".format(
+                provide_table_json['provide_id'], provide_table_json['provide'], provide_table_json['provide_status'],
+                gl.provide_normal_status))
+        # 最大专利id序号
+        self.max_patent_id_result = ms_sql.exec_continue_search(
+            "SELECT MAX({}) FROM {} ".format(config_json['patent_table_column_name'][0],
+                                             config_json['patent_table']))
+        # 有数据
+        self.judge = True
+        if train_file:
+            if int(self.max_require_id[0][0]) <= self.begin_require_id:
+                if int(self.max_provide_id[0][0]) <= self.begin_provide_id:
+                    if int(self.max_patent_id_result[0][0]) <= self.begin_patent_id:
+                        # 通过此变量判断是否有可迭代数据
+                        # 没数据
+                        self.judge = False
 
-    @classmethod
-    def return_result(cls, start, end):
+    def judge_document_exist(self):
         """
-        根据开始和结束返回结果
-        :param start:初始专利id
-        :param end:结束专利id
-        :return:查询专利信息的迭代器
+        判断数据存在与否
+        :return:
         """
-        return (ms_sql.exec_continue_search(
-            "SELECT {},{},{},{} FROM {} WHERE {} BETWEEN {} AND {}".format(*config_json['patent_table_column_name'],
-                                                                           config_json['patent_table'],
-                                                                           config_json['patent_table_column_name'][0],
-                                                                           start, end)))
+        if self.judge:
+            return 1
+        else:
+            return 0
 
     def get_train_document(self):
         """
@@ -81,19 +101,16 @@ class Document(object):
         :return:
         """
         # 利用需求数据
-        # 最大需求id序号
-        max_require_id = ms_sql.exec_continue_search(
-            "SELECT MAX ({}) FROM {} WHERE {} IN {}".format(
-                require_table_json['require_id'], require_table_json['require'], require_table_json['require_status'],
-                gl.require_normal_status))
+        if int(self.max_require_id[0][0]) <= self.begin_require_id:
+            return
         # 对需求数据进行分割，防止数据过大导致内存溢出
-        id_range_list = (list(range(self.begin_require_id, int(max_require_id[0][0]), 100)))
+        id_range_list = (list(range(self.begin_require_id, int(self.max_require_id[0][0]), 100)))
         id_range_list_len = len(id_range_list)
         if 0 != len(id_range_list):
             logging.info("获取数据库中需求文件")
             if 1 == len(id_range_list):
                 # 获取语料库
-                require_result = get_data_from_text(range(self.begin_require_id, max_require_id[0][0] + 1),
+                require_result = get_data_from_text(range(self.begin_require_id, self.max_require_id[0][0] + 1),
                                                     gl.algorithm_config_path, 'require')
                 for require in require_result:
                     if 0 != len(require[0]):
@@ -107,7 +124,7 @@ class Document(object):
                         for require in require_result:
                             if 0 != len(require[0]):
                                 yield require[0]
-                require_result = get_data_from_text(range(id_range_list[-1], int(max_require_id[0][0]) + 1),
+                require_result = get_data_from_text(range(id_range_list[-1], int(self.max_require_id[0][0]) + 1),
                                                     gl.algorithm_config_path, 'require')
                 for require in require_result:
                     if 0 != len(require[0]):
@@ -119,19 +136,16 @@ class Document(object):
         :return:
         """
         # 利用服务数据
-        # 最大服务id序号
-        max_provide_id = ms_sql.exec_continue_search(
-            "SELECT MAX ({}) FROM {} WHERE {} IN {}".format(
-                provide_table_json['provide_id'], provide_table_json['provide'], provide_table_json['provide_status'],
-                gl.provide_normal_status))
+        if int(self.max_provide_id[0][0]) <= self.begin_provide_id:
+            return
         # 对服务数据进行分割，防止数据过大导致内存溢出
-        id_range_list = (list(range(self.begin_provide_id, int(max_provide_id[0][0]), 100)))
+        id_range_list = (list(range(self.begin_provide_id, int(self.max_provide_id[0][0]), 100)))
         id_range_list_len = len(id_range_list)
         if 0 != len(id_range_list):
             logging.info("获取数据库中服务文件")
             if 1 == len(id_range_list):
                 # 获取语料库
-                provide_result = get_data_from_text(range(self.begin_provide_id, max_provide_id[0][0] + 1),
+                provide_result = get_data_from_text(range(self.begin_provide_id, self.max_provide_id[0][0] + 1),
                                                     gl.algorithm_config_path, 'provide')
                 for provide in provide_result:
                     if 0 != len(provide[0]):
@@ -145,7 +159,7 @@ class Document(object):
                         for provide in provide_result:
                             if 0 != len(provide[0]):
                                 yield provide[0]
-                provide_result = get_data_from_text(range(id_range_list[-1], int(max_provide_id[0][0]) + 1),
+                provide_result = get_data_from_text(range(id_range_list[-1], int(self.max_provide_id[0][0]) + 1),
                                                     gl.algorithm_config_path, 'provide')
                 for provide in provide_result:
                     if 0 != len(provide[0]):
@@ -157,27 +171,24 @@ class Document(object):
         :return:
         """
         # 利用专利数据
-        # 最大专利id序号
-        max_patent_id_result = ms_sql.exec_continue_search(
-            "SELECT MAX({}) FROM {} ".format(config_json['patent_table_column_name'][0],
-                                             config_json['patent_table']))
+        if self.begin_patent_id == int(self.max_patent_id_result[0][0]):
+            return
         # 对专利数据进行分割，防止数据过大导致内存溢出
-        id_range_list = (list(range(self.begin_patent_id, int(max_patent_id_result[0][0]),
-                                    10000)))
+        id_range_list = (list(range(self.begin_patent_id, int(self.max_patent_id_result[0][0]), 10000)))
         id_range_list_len = len(id_range_list)
         if 0 != len(id_range_list):
             logging.info("获取数据库中专利文件")
             if 1 == len(id_range_list):
-                for result in Document.return_result(self.begin_patent_id, int(max_patent_id_result[0][0])):
+                for result in Utils.return_result(self.begin_patent_id, int(self.max_patent_id_result[0][0])):
                     if 0 != len(result):
                         yield result[1] + result[2]
             else:
                 for index in range(id_range_list_len):
                     if index + 1 < id_range_list_len:
-                        for text in Document.return_result(id_range_list[index], id_range_list[index + 1] - 1):
+                        for text in Utils.return_result(id_range_list[index], id_range_list[index + 1] - 1):
                             if 0 != len(text):
                                 yield text[1] + text[2]
-                for text in Document.return_result(id_range_list[-1], int(max_patent_id_result[0][0])):
+                for text in Utils.return_result(id_range_list[-1], int(self.max_patent_id_result[0][0])):
                     if 0 != len(text):
                         yield text[1] + text[2]
 
@@ -188,9 +199,18 @@ class Document(object):
         """
         for documents in (self.get_train_document(), self.get_require_document(), self.get_provide_document(),
                           self.get_patent_document()):
+            if not documents:
+                continue
             for a_document in documents:
                 yield a_document
+        ms_sql.close_conn()
 
 
 if __name__ == '__main__':
-    pass
+    documents = MyDocument(train_file=True,
+                           begin_require_id=226,
+                           begin_provide_id=169,
+                           begin_patent_id=1702462)
+    print(documents)
+    for doc in documents:
+        print(1)

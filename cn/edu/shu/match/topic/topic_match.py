@@ -501,7 +501,7 @@ class TopicUtils(object):
                                                                                'provide')
                 for provide_data in provide_result:
                     # 计算一个需求和一个服务的匹配度
-                    if not provide_data or 0 == len(require_data):
+                    if not provide_data:
                         continue
                     match_provide_dict[provide_data[0]] = TopicUtils.calculate_match_degree(lda_model, tf_idf_model,
                                                                                             dictionary,
@@ -519,7 +519,7 @@ class TopicUtils(object):
                             range(id_range_list[index], id_range_list[index + 1] - 1),
                             gl.algorithm_config_path, 'provide')
                         for provide_data in provide_result:
-                            if not provide_data or 0 == len(require_data):
+                            if not provide_data:
                                 continue
                             # 计算一个需求和一个服务的匹配度
                             match_provide_dict[provide_data[0]] = TopicUtils.calculate_match_degree(lda_model,
@@ -534,7 +534,7 @@ class TopicUtils(object):
                     range(id_range_list[-1], int(max_provide_id[0][0]) + 1),
                     gl.algorithm_config_path, 'provide')
                 for provide_data in provide_result:
-                    if not provide_data or 0 == len(require_data):
+                    if not provide_data:
                         continue
                     # 计算一个需求和一个服务的匹配度
                     match_provide_dict[provide_data[0]] = TopicUtils.calculate_match_degree(lda_model, tf_idf_model,

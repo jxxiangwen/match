@@ -219,15 +219,15 @@ def update_tf_idf_by_data(data):
                     "SELECT MAX({}) FROM {} ".format(config_json['patent_table_column_name'][0],
                                                      config_json['patent_table']))
                 # 上次使用的最大专利号
-                assert str.isdigit(config_json['patent_max_id_used']), 'patent_max_id_used必须是整数'
-                if max_patent_id_result[0][0] <= int(config_json['patent_max_id_used']):
+                assert str.isdigit(config_json['max_patent_id_used']), 'max_patent_id_used必须是整数'
+                if max_patent_id_result[0][0] <= int(config_json['max_patent_id_used']):
                     pass
                 else:
                     # 新增专利数量
                     new_patent_num_result = ms_sql.exec_continue_search(
                         "SELECT COUNT(*) FROM {} WHERE {} BETWEEN {} AND {} ".format(
                             config_json['patent_table'], config_json['patent_table_column_name'][0],
-                            config_json['patent_max_id_used'], max_patent_id_result[0][0]))
+                            config_json['max_patent_id_used'], max_patent_id_result[0][0]))
                     file_line_num += new_patent_num_result
                     # 得到可用的专利训练数据
                     results = (ms_sql.exec_continue_search(
@@ -235,12 +235,12 @@ def update_tf_idf_by_data(data):
                                                                           config_json['patent_table'],
                                                                           config_json['patent_table_column_name'][0],
                                                                           patent_id)) for
-                               patent_id in range(int(config_json['patent_max_id_used']) + 1,
+                               patent_id in range(int(config_json['max_patent_id_used']) + 1,
                                                   max_patent_id_result[0][0] + 1))
                     for result in results:
                         if len(result) != 0:
                             update_or_insert_data(result[0][1] + result[0][2])
-                    config_json['patent_max_id_used'] = max_patent_id_result[0][0]  # 修改使用过的专利数据最大id
+                    config_json['max_patent_id_used'] = max_patent_id_result[0][0]  # 修改使用过的专利数据最大id
                     change_json_file(gl.config_path, **config_json)
                     # 遍历专利数据结束
             # 文档总数

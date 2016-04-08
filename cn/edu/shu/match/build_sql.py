@@ -11,8 +11,6 @@ from time import strftime, localtime
 import pymssql, json, datetime
 
 
-
-
 class MsSql:
     """
     对pymssql的简单封装
@@ -33,6 +31,15 @@ class MsSql:
                 raise (NameError, "没有设置数据库信息")
             self.conn = pymssql.connect(host=self.host, user=self.user, password=self.password, database=self.database,
                                         port=25366, charset="utf8")
+
+    def __new__(self):
+        """
+        实现单例模式
+        :return:
+        """
+        if not hasattr(self, '_instance'):
+            self._instance = super(MsSql, self).__new__(self)
+        return self._instance
 
     def __get_connect(self):
         """
