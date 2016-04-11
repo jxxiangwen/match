@@ -30,12 +30,10 @@ def get_config_json(path):
     with open(path, encoding='utf-8') as config_file:
         return json.load(config_file)
 
-
+ms_sql = MsSql()
 config_json = get_config_json(gl.config_path)
 jieba.analyse.set_stop_words(config_json['gensim_stopword_path'])
 jieba.load_userdict(config_json['gensim_dict_path'])
-
-ms_sql = MsSql()
 
 logging.basicConfig(level=logging.WARN,
                     format='%(asctime)s - %(filename)s - [line:%(lineno)d] - %(levelname)s - %(message)s',

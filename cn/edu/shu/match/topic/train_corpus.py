@@ -24,6 +24,7 @@ from cn.edu.shu.match.topic.preprocess import get_config_json
 ms_sql = MsSql()
 config_json = get_config_json(gl.config_path)
 corpus_config_json = get_config_json(gl.corpus_config_path)
+temp_corpus_config_json = get_config_json(gl.temp_corpus_config_path)
 require_table_json = get_config_json(gl.require_table_path)
 provide_table_json = get_config_json(gl.provide_table_path)
 jieba.analyse.set_stop_words(config_json['gensim_stopword_path'])
@@ -111,10 +112,10 @@ class MyCorpus(object):
         :return:
         """
         logging.warning("开始重新训练语料库")
-        documents = MyDocument(train_file=corpus_config_json['corpus_train_used'],
-                               begin_require_id=int(corpus_config_json['corpus_max_require_id_used']),
-                               begin_provide_id=int(corpus_config_json['corpus_max_provide_id_used']),
-                               begin_patent_id=int(corpus_config_json['corpus_max_patent_id_used']))
+        documents = MyDocument(train_file=temp_corpus_config_json['corpus_train_used'],
+                               begin_require_id=int(temp_corpus_config_json['corpus_max_require_id_used']),
+                               begin_provide_id=int(temp_corpus_config_json['corpus_max_provide_id_used']),
+                               begin_patent_id=int(temp_corpus_config_json['corpus_max_patent_id_used']))
         # 没有更新直接返回原始语料库
         if 0 == documents.judge_document_exist():
             logging.warning("语料库没有更新")
@@ -129,13 +130,17 @@ class MyCorpus(object):
         with open(self.corpus_path, mode='w', encoding='utf-8'):
             logging.warning("清空语料库数据")
             pass
+        documents = MyDocument(train_file=corpus_config_json['corpus_train_used'],
+                               begin_require_id=int(corpus_config_json['corpus_max_require_id_used']),
+                               begin_provide_id=int(corpus_config_json['corpus_max_provide_id_used']),
+                               begin_patent_id=int(corpus_config_json['corpus_max_patent_id_used']))
         dictionary = MyDictionary()
         dictionary.re_train_or_update_dictionary()
         dictionary = dictionary.get_dictionary()
         self.corpus = (dictionary.doc2bow(Utils.yield_document(document, participle=True, add_list=False))
                        for document in documents)
         corpora.MmCorpus.serialize(self.corpus_path, self.corpus)
-        MyCorpus.update_corpus_config()
+        # MyCorpus.update_corpus_config()
         MyCorpus.update_temp_corpus_config()
         logging.warning("结束重新训练语料库")
         return self.corpus

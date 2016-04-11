@@ -28,7 +28,7 @@ insert_config_path = './topic/config/insert_config.json'
 # 过滤的行业类别名
 default_industry_name = '默认'
 # 分割需求和服务的符号
-split_symbol = '[,|，|.|。|!|！|?|？|;|；|\n|\t|\s]'
+split_symbol = '[.|。|!|！|?|？|\n|\t|\s]'
 # 不进行分割的需求和服务文件在需求和服务表中索引
 require_no_segment = (2, 4)
 provide_no_segment = (2, 4)

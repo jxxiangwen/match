@@ -35,26 +35,21 @@ jieba.load_userdict(config_json['gensim_dict_path'])
 jieba.analyse.set_idf_path(config_json['gensim_tf_idf_path'])
 
 
-def merge_data(data, data_index):
+def merge_data(document, data_index):
     """
     通过数据和索引抽取数据
-    :param data: 文档id
+    :param document: 文档
     :param data_index: 算法配置文件地址
     :return: 预处理后数据
     """
-    return_data = list()  # 返回数据
-    for document in data:
-        text = str()
-        # 提取文档匹配所需信息
-        for conclude_index, subscript in enumerate(data_index):
-            int_sub = int(subscript)
-            if document[int_sub]:
-                if gl.default_industry_name != document[int_sub]:
-                    text += document[int_sub] + ","
-        text_list = list()
-        text_list.append(text)
-        return_data.append(text_list)
-    return return_data
+    text = str()
+    # 提取文档匹配所需信息
+    for conclude_index, subscript in enumerate(data_index):
+        int_sub = int(subscript)
+        if document[int_sub]:
+            if gl.default_industry_name != document[int_sub]:
+                text += document[int_sub] + ","
+    return text
 
 
 def insert_require_vector_to_mongo():
@@ -73,7 +68,7 @@ def insert_require_vector_to_mongo():
         # 语料库有更新，重新得到tf_idf模型
         tf_idf_model.re_train_tf_idf(corpus.get_corpus())
     tf_idf_model = tf_idf_model.get_tf_idf()
-    mongo.set_collection(mongodb_json['provide'])
+    mongo.set_collection(mongodb_json['require'])
     # 最大需求id序号
     max_require_id = ms_sql.exec_continue_search(
         "SELECT MAX ({}) FROM {} WHERE {} IN {}".format(
@@ -96,8 +91,10 @@ def insert_require_vector_to_mongo():
                 # 计算一个需求和一个服务的匹配度
                 if not require_data:
                     continue
-                mongo.insert({"require_id": require_data[0], "default": True, "require_vector": tf_idf_model[
-                    dictionary.doc2bow(jieba.cut(merge_data(require_data, require_conclude_data_index)))]})
+                print(require_data)
+                if mongo.get_collection().find_one({"require_id": require_data[0]}):
+                    mongo.insert({"require_id": require_data[0], "default": True, "require_vector": tf_idf_model[
+                        dictionary.doc2bow(jieba.cut(merge_data(require_data, require_conclude_data_index)))]})
         else:
             for index in range(id_range_list_len):
                 if index + 1 < id_range_list_len:
@@ -108,16 +105,20 @@ def insert_require_vector_to_mongo():
                     for require_data in require_result:
                         if not require_data:
                             continue
-                        mongo.insert({"require_id": require_data[0], "default": True, "require_vector": tf_idf_model[
-                            dictionary.doc2bow(jieba.cut(merge_data(require_data, require_conclude_data_index)))]})
+                        if mongo.get_collection().find_one({"require_id": require_data[0]}):
+                            mongo.insert(
+                                {"require_id": require_data[0], "default": True, "require_vector": tf_idf_model[
+                                    dictionary.doc2bow(
+                                        jieba.cut(merge_data(require_data, require_conclude_data_index)))]})
             require_result, require_conclude_data_index = product_conclude(
                 range(id_range_list[-1], int(max_require_id[0][0]) + 1),
                 gl.algorithm_config_path, 'require')
             for require_data in require_result:
                 if not require_data:
                     continue
-                mongo.insert({"require_id": require_data[0], "default": True, "require_vector": tf_idf_model[
-                    dictionary.doc2bow(jieba.cut(merge_data(require_data, require_conclude_data_index)))]})
+                if mongo.get_collection().find_one({"require_id": require_data[0]}):
+                    mongo.insert({"require_id": require_data[0], "default": True, "require_vector": tf_idf_model[
+                        dictionary.doc2bow(jieba.cut(merge_data(require_data, require_conclude_data_index)))]})
     insert_config_json['insert_max_require_id_used'] = int(max_require_id[0][0])
     change_json_file(gl.insert_config_path, **insert_config_json)
 
@@ -163,8 +164,9 @@ def insert_provide_vector_to_mongo():
                 # 计算一个需求和一个服务的匹配度
                 if not provide_data:
                     continue
-                mongo.insert({"provide_id": provide_data[0], "default": True, "provide_vector": tf_idf_model[
-                    dictionary.doc2bow(jieba.cut(merge_data(provide_data, provide_conclude_data_index)))]})
+                if mongo.get_collection().find_one({"provide_id": provide_data[0]}):
+                    mongo.insert({"provide_id": provide_data[0], "default": True, "provide_vector": tf_idf_model[
+                        dictionary.doc2bow(jieba.cut(merge_data(provide_data, provide_conclude_data_index)))]})
         else:
             for index in range(id_range_list_len):
                 if index + 1 < id_range_list_len:
@@ -175,16 +177,20 @@ def insert_provide_vector_to_mongo():
                     for provide_data in provide_result:
                         if not provide_data:
                             continue
-                        mongo.insert({"provide_id": provide_data[0], "default": True, "provide_vector": tf_idf_model[
-                            dictionary.doc2bow(jieba.cut(merge_data(provide_data, provide_conclude_data_index)))]})
+                        if mongo.get_collection().find_one({"provide_id": provide_data[0]}):
+                            mongo.insert(
+                                {"provide_id": provide_data[0], "default": True, "provide_vector": tf_idf_model[
+                                    dictionary.doc2bow(
+                                        jieba.cut(merge_data(provide_data, provide_conclude_data_index)))]})
             provide_result, provide_conclude_data_index = product_conclude(
                 range(id_range_list[-1], int(max_provide_id[0][0]) + 1),
                 gl.algorithm_config_path, 'provide')
             for provide_data in provide_result:
                 if not provide_data:
                     continue
-                mongo.insert({"provide_id": provide_data[0], "default": True, "provide_vector": tf_idf_model[
-                    dictionary.doc2bow(jieba.cut(merge_data(provide_data, provide_conclude_data_index)))]})
+                if mongo.get_collection().find_one({"provide_id": provide_data[0]}):
+                    mongo.insert({"provide_id": provide_data[0], "default": True, "provide_vector": tf_idf_model[
+                        dictionary.doc2bow(jieba.cut(merge_data(provide_data, provide_conclude_data_index)))]})
     insert_config_json['insert_max_provide_id_used'] = int(max_provide_id[0][0])
     change_json_file(gl.insert_config_path, **insert_config_json)
 

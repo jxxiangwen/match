@@ -80,7 +80,7 @@ def produce_match_document(update=True):
         tf_idf_model.re_train_tf_idf(corpus.get_corpus())
     tf_idf_model = tf_idf_model.get_tf_idf()
     insert_data()
-    lda_model = MyLdaModel.get_lda()
+    lda_model = MyLdaModel().get_lda()
     if not lda_model:
         return None
     topic_utils = TopicUtils()

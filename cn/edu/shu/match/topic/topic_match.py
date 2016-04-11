@@ -23,6 +23,7 @@ from cn.edu.shu.match.tool import str_list_to_dict
 ms_sql = MsSql()
 # lda_model = TopicTrain
 config_json = get_config_json(gl.config_path)
+lda_config_json = get_config_json(gl.lda_config_path)
 algorithm_json = get_config_json(gl.algorithm_config_path)
 require_table_json = get_config_json(gl.require_table_path)
 provide_table_json = get_config_json(gl.provide_table_path)
@@ -322,8 +323,8 @@ class TopicUtils(object):
         # logging.warning('分割后需求数据：{}'.format(require_merge_data))
         # logging.warning('分割后服务数据：{}'.format(provide_merge_data))
         # 如果主题模型返回为空或者返回长度等于主题数量，直接使用余弦相似度计算
-        if len(require_merge_data) in (0, config_json['lda_model_num_topics']) or \
-                        len(provide_merge_data) in (0, config_json['lda_model_num_topics']):
+        if len(require_merge_data) in (0, lda_config_json['lda_model_num_topics']) or \
+                        len(provide_merge_data) in (0, lda_config_json['lda_model_num_topics']):
             return match_degree_function(tf_idf_model[dictionary.doc2bow(jieba.cut(require_data))],
                                          tf_idf_model[dictionary.doc2bow(jieba.cut(provide_data))])
         else:
