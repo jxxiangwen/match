@@ -50,6 +50,7 @@ class MyTfIdfModel(object):
         :return:
         """
         logging.warning("开始重新训练tf_idf模型")
+        logging.warning("corpus:{}".format(corpus))
         self.tf_idf_model = models.TfidfModel(corpus)
         self.save_tf_idf()
         logging.warning("结束重新训练tf_idf模型")

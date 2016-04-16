@@ -91,8 +91,11 @@ def insert_require_vector_to_mongo():
                 # 计算一个需求和一个服务的匹配度
                 if not require_data:
                     continue
-                print(require_data)
+                # print(require_data)
                 if mongo.get_collection().find_one({"require_id": require_data[0]}):
+                    logging.warning("需求向量：{}".format(
+                        {"require_id": require_data[0], "default": True, "require_vector": tf_idf_model[
+                            dictionary.doc2bow(jieba.cut(merge_data(require_data, require_conclude_data_index)))]}))
                     mongo.insert({"require_id": require_data[0], "default": True, "require_vector": tf_idf_model[
                         dictionary.doc2bow(jieba.cut(merge_data(require_data, require_conclude_data_index)))]})
         else:
@@ -105,7 +108,7 @@ def insert_require_vector_to_mongo():
                     for require_data in require_result:
                         if not require_data:
                             continue
-                        if mongo.get_collection().find_one({"require_id": require_data[0]}):
+                        if not mongo.get_collection().find_one({"require_id": require_data[0]}):
                             mongo.insert(
                                 {"require_id": require_data[0], "default": True, "require_vector": tf_idf_model[
                                     dictionary.doc2bow(
@@ -116,7 +119,7 @@ def insert_require_vector_to_mongo():
             for require_data in require_result:
                 if not require_data:
                     continue
-                if mongo.get_collection().find_one({"require_id": require_data[0]}):
+                if not mongo.get_collection().find_one({"require_id": require_data[0]}):
                     mongo.insert({"require_id": require_data[0], "default": True, "require_vector": tf_idf_model[
                         dictionary.doc2bow(jieba.cut(merge_data(require_data, require_conclude_data_index)))]})
     insert_config_json['insert_max_require_id_used'] = int(max_require_id[0][0])
@@ -146,13 +149,11 @@ def insert_provide_vector_to_mongo():
             provide_table_json['provide_id'], provide_table_json['provide'], provide_table_json['provide_status'],
             gl.provide_normal_status))
     # 利用需求数据
-    print(insert_config_json['insert_max_provide_id_used'])
     if int(max_provide_id[0][0]) <= insert_config_json['insert_max_provide_id_used']:
         return
     # 对服务数据进行分割，防止数据过大导致内存溢出
     id_range_list = (list(range(0, int(max_provide_id[0][0]), 100)))
     id_range_list_len = len(id_range_list)
-    print(id_range_list)
     # logging.warning(id_range_list)
     if 0 != len(id_range_list):
         if 1 == len(id_range_list):
@@ -177,7 +178,7 @@ def insert_provide_vector_to_mongo():
                     for provide_data in provide_result:
                         if not provide_data:
                             continue
-                        if mongo.get_collection().find_one({"provide_id": provide_data[0]}):
+                        if not mongo.get_collection().find_one({"provide_id": provide_data[0]}):
                             mongo.insert(
                                 {"provide_id": provide_data[0], "default": True, "provide_vector": tf_idf_model[
                                     dictionary.doc2bow(
@@ -188,7 +189,7 @@ def insert_provide_vector_to_mongo():
             for provide_data in provide_result:
                 if not provide_data:
                     continue
-                if mongo.get_collection().find_one({"provide_id": provide_data[0]}):
+                if not mongo.get_collection().find_one({"provide_id": provide_data[0]}):
                     mongo.insert({"provide_id": provide_data[0], "default": True, "provide_vector": tf_idf_model[
                         dictionary.doc2bow(jieba.cut(merge_data(provide_data, provide_conclude_data_index)))]})
     insert_config_json['insert_max_provide_id_used'] = int(max_provide_id[0][0])

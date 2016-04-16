@@ -45,7 +45,7 @@ class TopicTrain(object):
         """
         MyLsiModel().re_train_or_update_lsi()
         MyLdaModel().re_train_or_update_lda()
-        MyHdpModel().re_train_or_update_hdp()
+        # MyHdpModel().re_train_or_update_hdp()
 
     @classmethod
     def re_train_all(cls):
@@ -55,7 +55,7 @@ class TopicTrain(object):
         """
         MyLsiModel().re_train_or_update_lsi(update=False)
         MyLdaModel().re_train_or_update_lda(update=False)
-        MyHdpModel().re_train_or_update_hdp(update=False)
+        # MyHdpModel().re_train_or_update_hdp(update=False)
 
 
 if __name__ == '__main__':

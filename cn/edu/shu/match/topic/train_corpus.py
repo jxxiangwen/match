@@ -75,6 +75,7 @@ class MyCorpus(object):
         :param patent:
         :return:
         """
+        print(texts)
         if not texts:
             return
         import collections
@@ -137,8 +138,8 @@ class MyCorpus(object):
         dictionary = MyDictionary()
         dictionary.re_train_or_update_dictionary()
         dictionary = dictionary.get_dictionary()
-        self.corpus = (dictionary.doc2bow(Utils.yield_document(document, participle=True, add_list=False))
-                       for document in documents)
+        self.corpus = [dictionary.doc2bow(Utils.yield_document(document, participle=True, add_list=False))
+                       for document in documents]
         corpora.MmCorpus.serialize(self.corpus_path, self.corpus)
         # MyCorpus.update_corpus_config()
         MyCorpus.update_temp_corpus_config()

@@ -19,6 +19,9 @@ from cn.edu.shu.match.topic.preprocess import get_config_json
 from cn.edu.shu.match.process.get_text import product_conclude
 import cn.edu.shu.match.global_variable as gl
 from cn.edu.shu.match.tool import str_list_to_dict
+from cn.edu.shu.match.topic.train_lda_model import MyLdaModel
+from cn.edu.shu.match.topic.train_dictionary import MyDictionary
+from cn.edu.shu.match.topic.train_tf_idf_model import MyTfIdfModel
 
 ms_sql = MsSql()
 # lda_model = TopicTrain
@@ -332,8 +335,8 @@ class TopicUtils(object):
             # if not segment:
             #     return match_degree_function(require_data, provide_data)
             # else:
-            logging.warning('分割后需求数据：{}'.format(require_merge_data))
-            logging.warning('分割后服务数据：{}'.format(provide_merge_data))
+            # logging.warning('分割后需求数据：{}'.format(require_merge_data))
+            # logging.warning('分割后服务数据：{}'.format(provide_merge_data))
             for require in require_merge_data:
                 match_degree_list = list()
                 for provide in provide_merge_data:
@@ -375,10 +378,10 @@ class TopicUtils(object):
         # logging.warning("开始计算一篇文档")
         # 计算权重和
         weight_sum = 0
-        logging.warning('weight_dict:{}'.format(weight_dict))
+        # logging.warning('weight_dict:{}'.format(weight_dict))
         for value in weight_dict.values():
             weight_sum += float(value)
-        logging.warning('weight_sum:{}'.format(weight_sum))
+        # logging.warning('weight_sum:{}'.format(weight_sum))
         result_list = list()
         # 对需求的每一部分计算其和服务的每一部分的匹配度，取最好匹配或最差匹配
         for require_index in require_conclude:
@@ -401,7 +404,7 @@ class TopicUtils(object):
                     logging.warning(
                         'require_index:{},provide_index:{},匹配度:{}'.format(require_index, provide_index, degree))
                     match_degree_list.append(degree)
-                    logging.warning('match_degree_list:{}，'.format(match_degree_list))
+                    # logging.warning('match_degree_list:{}，'.format(match_degree_list))
                 else:
                     degree = TopicUtils.get_match_degree(lda_model, tf_idf_model, dictionary,
                                                          require_data[int_require_index],
@@ -410,7 +413,7 @@ class TopicUtils(object):
                     logging.warning(
                         'require_index:{},provide_index:{},匹配度:{}'.format(require_index, provide_index, degree))
                     match_degree_list.append(degree)
-                    logging.warning('match_degree_list:{}，'.format(match_degree_list))
+                    # logging.warning('match_degree_list:{}，'.format(match_degree_list))
             logging.warning('需求索引{}，匹配结果:{}'.format(require_index, match_degree_list))
             result_list.append(match_degree_list)
         result_matrix = np.matrix(result_list)
@@ -449,8 +452,13 @@ class TopicUtils(object):
         avg_match_degree = total_degree / length
         match_ids = list()
         # 得到大于平均匹配度且大于最小匹配度的服务号
+        pop_id_list = list()
         for provide_id, match_degree in match_dict.items():
             if match_degree < avg_match_degree or match_degree < gl.match_threshold:
+                pop_id_list.append(provide_id)
+
+        if len(pop_id_list) != 0:
+            for provide_id in pop_id_list:
                 match_dict.pop(provide_id)
         return match_dict
 
@@ -552,4 +560,10 @@ class TopicUtils(object):
 
 if __name__ == '__main__':
     # logging.warning(TopicUtils.make_len_equal([(0, 0.0003703703703703729)],[(0, 0.00083333333333333024)]))
-    pass
+    lda = MyLdaModel().get_lda()
+    tf_idf = MyTfIdfModel().get_tf_idf()
+    dictionary = MyDictionary().get_dictionary()
+    match_dict = TopicUtils.get_match_provide_by_require(lda, tf_idf, dictionary, 311)
+    if match_dict > 0:
+        print(match_dict)
+    TopicUtils.get_match_provide_by_require(lda, tf_idf, dictionary, 337)

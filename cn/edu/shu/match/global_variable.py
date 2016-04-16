@@ -39,7 +39,7 @@ cos_segment_threshold = 0.5
 # 匹配阈值最低线
 cos_match_threshold = 0.5
 # 匹配度阈值
-match_threshold = 0.1
+match_threshold = 0.65
 # 自动匹配度最小阈值
 dynamic_match_min_threshold = 0.1
 # 需求正常状态

@@ -49,10 +49,11 @@ def insert_into_match(require_id, provide_id, match_degree, algorithm_type):
     :return:
     """
     mongo.set_collection(mongodb_json['require'])
-    require_vector = mongo.find_one({"require_id": require_id})
+    require_vector = mongo.get_collection().find_one({"require_id": require_id})
     mongo.set_collection(mongodb_json['provide'])
-    provide_vector = mongo.find_one({"provide_id": provide_id})
-    if TopicUtils.get_cos_value(require_vector, provide_vector) > gl.cos_match_threshold:
+    provide_vector = mongo.get_collection().find_one({"provide_id": provide_id})
+    if TopicUtils.get_cos_value(require_vector['require_vector'],
+                                provide_vector['provide_vector']) > gl.cos_match_threshold:
         MatchAlgorithm.save(require_id, provide_id, match_degree, algorithm_type)
 
 
@@ -97,7 +98,7 @@ def produce_match_document(update=True):
             for require_id in range(0, max_require_id[0][0] + 1):
                 provide_dict = topic_utils.get_match_provide_by_require(lda_model, tf_idf_model, dictionary, require_id)
                 for provide_id, match_degree in provide_dict.items():
-                    insert_into_match(require_id, provide_id, match_degree, '')
+                    insert_into_match(require_id, provide_id, match_degree, 'topic')
         else:
             for index in range(id_range_list_len):
                 if index + 1 < id_range_list_len:
@@ -105,17 +106,17 @@ def produce_match_document(update=True):
                         provide_dict = topic_utils.get_match_provide_by_require(lda_model, tf_idf_model, dictionary,
                                                                                 require_id)
                         for provide_id, match_degree in provide_dict.items():
-                            insert_into_match(require_id, provide_id, match_degree, '')
+                            insert_into_match(require_id, provide_id, match_degree, 'topic')
 
             for require_id in range(id_range_list[-1], int(max_require_id[0][0]) + 1):
                 provide_dict = topic_utils.get_match_provide_by_require(lda_model, tf_idf_model, dictionary, require_id)
                 for provide_id, match_degree in provide_dict.items():
-                    insert_into_match(require_id, provide_id, match_degree, '')
+                    insert_into_match(require_id, provide_id, match_degree, 'topic')
     logging.warning("结束匹配计算")
 
 
 if __name__ == '__main__':
-    times = 0
+    times = 1
     while True:
         start = time.clock()
         # 每10次重新训练一次

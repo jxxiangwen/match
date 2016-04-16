@@ -87,7 +87,9 @@ class MyLdaModel(object):
                                    begin_patent_id=int(lda_config_json['lda_max_patent_id_used']))
             if 1 == documents.judge_document_exist():
                 logging.warning("开始更新lda模型")
-                self.lda_model.update(tf_idf_model[MyCorpus.get_corpus_by_document(dictionary, documents)])
+                self.lda_model.update(
+                    [tf_idf_model[MyCorpus.get_corpus_by_document(dictionary, document)] for document in documents if
+                     not document and 0 != len(document)])
                 logging.warning("结束更新lda模型")
         else:
             logging.warning("开始重新训练lda模型")

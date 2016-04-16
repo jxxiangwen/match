@@ -100,10 +100,11 @@ class MyDictionary(object):
         :param update: 是更新还是重新训练
         :return:
         """
-        logging.warning("开始重新训练或更新词典")
         if update:
+            logging.warning("开始更新词典")
             self.__update_dictionary()
         else:
+            logging.warning("开始重新训练词典")
             self.__re_train_dictionary()
         # 更新使用过的id数据
         self.__save_dictionary()

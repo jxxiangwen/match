@@ -84,7 +84,9 @@ class MyHdpModel(object):
                                    begin_patent_id=int(hdp_config_json['hdp_max_patent_id_used']))
             if 1 == documents.judge_document_exist():
                 logging.warning("开始更新hdp模型")
-                self.hdp_model.update(tf_idf_model[MyCorpus.get_corpus_by_document(dictionary, documents)])
+                self.hdp_model.update(
+                    [tf_idf_model[MyCorpus.get_corpus_by_document(dictionary, document)] for document in documents if
+                     not document and 0 != len(document)])
                 logging.warning("结束更新hdp模型")
         else:
             logging.warning("开始重新训练hdp模型")

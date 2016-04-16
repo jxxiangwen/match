@@ -57,8 +57,8 @@
     "regulars_comment": "#开头不使用，抽取文件的正则表达式：1.for index:代表抽取第几分组的内容；2. title and content:title是需求或技术标题，content是内容",
     "save_document": "./topic/model/document.txt",
     "save_document_comment": "更新文档保存位置",
-    "time_to_run":0,
-    "time_to_run_comment":"程序循环运行时间，0是执行完立刻重新运行，1是一天，2是2天，依此类推",
+	"time_to_run":1,
+	"time_to_run_comment":"程序循环运行时间,0是立刻重新运行,1是一天运行一次,2是两天运行一次,依此类推",
     "train_comment": "训练文件地址在本文件夹地址或者训练文件绝对地址",
     "train_path": "./topic/model/train.txt"
 }

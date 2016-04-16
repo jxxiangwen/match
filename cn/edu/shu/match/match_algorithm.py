@@ -135,9 +135,10 @@ class MatchAlgorithm(object):
         :param degree: 余弦相似度
         :return:匹配度
         """
-        with open('./config/degree.json', encoding='utf-8') as degree_file:
-            degree_json = json.load(degree_file)
-            return degree_json[str(int(abs(degree) * 100))]
+        return str(int(abs(degree) * 100))
+        # with open('./config/degree.json', encoding='utf-8') as degree_file:
+        #     degree_json = json.load(degree_file)
+        #     return degree_json[str(int(abs(degree) * 100))]
 
     @staticmethod
     def save(require_id, provide_id, result, algorithm_type):
